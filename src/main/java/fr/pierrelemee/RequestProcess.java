@@ -2,5 +2,5 @@ package fr.pierrelemee;
 
 public interface RequestProcess {
 
-    public WebResponse process() throws Exception;
+    public WebResponse process(WebRequest request) throws Exception;
 }

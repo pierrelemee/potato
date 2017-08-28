@@ -1,144 +1,73 @@
 package fr.pierrelemee;
 
 
+import com.sun.net.httpserver.HttpExchange;
+
+import java.net.URI;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
 public class WebRequest {
 
-    /*
-    private static final String POST = "POST";
+    protected HttpMethod method;
+    protected String path;
+    protected Map<String, String> headers;
+    protected Map<String, List<String>> get;
+    protected Map<String, List<String>> post;
 
-    private final String method;
-    private final String uri;
-    private final Map<String, String> variables;
-    private final Map<String, List<String>> get;
-    private final Map<String, List<String>> post;
-    private Map<String, String> headers;
-    private Map<String, String> cookies;
-    private final Optional<ByteString> payload;
-
-    public WebRequest(String uri) {
-        this(uri, RequestValue.GET);
+    public WebRequest(String path) {
+        this(path, HttpMethod.GET);
     }
 
-    public WebRequest(String uri, String method) {
-        this(uri, method, null);
+    public WebRequest(String path, HttpMethod method) {
+        this(path, method, Collections.emptyMap());
     }
 
-    public WebRequest(String uri, String method, ByteString payload) {
-        this(uri, method, payload, Collections.emptyMap());
-    }
-
-    public WebRequest(String uri, String method, ByteString payload, Map<String, String> headers) {
-        this(uri, Collections.emptyMap(), method, payload, headers);
-    }
-
-    public WebRequest(String uri, Map<String, String> variables, String method, ByteString payload, Map<String, String> headers) {
+    public WebRequest(String path, HttpMethod method, Map<String, List<String>> get) {
+        this.path = path.substring(0, Math.max(path.indexOf('?'), 0));
         this.method = method;
-        this.uri = uri;
-        this.variables = variables;
-        this.payload = Optional.of(payload != null ? payload : ByteString.EMPTY);
-        if (method.equalsIgnoreCase(POST)) {
-            this.post = new QueryStringDecoder(this.payload().isPresent() ? this.payload().get().utf8() : "", false).parameters();
-            this.get = Collections.emptyMap();
-        } else {
-            this.get = new QueryStringDecoder(this.uri).parameters();
-            this.post = Collections.emptyMap();
-        }
-        this.headers = headers;
-        this.cookies = new HashMap<>();
+        this.get = get;
+        this.headers = Collections.emptyMap();
+    }
 
-        if (this.header("Cookie").isPresent()) {
-            for (String cookie: this.header("Cookie").get().split(";")) {
-                cookie = cookie.trim();
-                int index = cookie.indexOf('=');
-                if (index >= 0) {
-                    this.cookies.put(cookie.substring(0, index), cookie.substring(index + 1));
-                }
+    public static Map<String, List<String>> parameters(String query) {
+        Map<String, List<String>> parameters = new LinkedHashMap<>();
+        int index = query.indexOf('?');
+
+        for (String parameter: query.substring(index + 1).split("&")) {
+            index = parameter.indexOf('=');
+            if (index > -1) {
+                parameters.put(parameter.substring(0, index), Collections.singletonList(parameter.substring(index + 1)));
+            } else {
+                parameters.put(parameter, Collections.singletonList("true"));
             }
         }
+
+        return parameters;
     }
 
-    @Override
-    public String method() {
+    public HttpMethod getMethod() {
         return this.method;
     }
 
-    @Override
-    public String uri() {
-        return this.uri;
+    public String getPath() {
+        return this.path;
     }
 
-    public Map<String, String> variables() {
-        return this.variables;
-    }
     public Map<String, List<String>> get() {
         return this.get;
     }
+
     public Map<String, List<String>> post() {
         return this.post;
     }
 
-    public Map<String, String> cookies() {
-        return this.cookies;
+    public static WebRequest fromExchange(HttpExchange exchange) {
+        return new WebRequest(exchange.getRequestURI().getPath(),
+                HttpMethod.valueOf(exchange.getRequestMethod()),
+                parameters(exchange.getRequestURI().getQuery())
+                );
     }
-
-    public boolean hasCookie(String name) {
-        return this.cookies.containsKey(name);
-    }
-
-    public String getCookie(String name) {
-        return this.cookies.get(name);
-    }
-
-    @Override
-    public Map<String, List<String>> parameters() {
-        return this.method.equalsIgnoreCase(POST) ? this.post : this.get;
-    }
-
-    @Override
-    public Map<String, String> headers() {
-        return this.headers;
-    }
-
-    @Override
-    public Optional<String> service() {
-        return null;
-    }
-
-    @Override
-    public Optional<ByteString> payload() {
-        return this.payload;
-    }
-
-    @Override
-    public WebRequest withUri(String uri) {
-        return new WebRequest(uri);
-    }
-
-    @Override
-    public WebRequest withService(String service) {
-        return null;
-    }
-
-    @Override
-    public WebRequest withHeader(String name, String value) {
-        WebRequest request = new WebRequest(this.uri(), this.method());
-        request.headers.put(name, value);
-        return request;
-    }
-
-    @Override
-    public WebRequest withHeaders(Map<String, String> additionalHeaders) {
-        return null;
-    }
-
-    @Override
-    public WebRequest clearHeaders() {
-        return new WebRequest(this.uri(), this.method());
-    }
-
-    @Override
-    public WebRequest withPayload(ByteString payload) {
-        return new WebRequest(uri(), method(), payload);
-    }
-    */
 }

@@ -23,40 +23,49 @@ public class WebApplication implements HttpHandler {
     }
 
     public void handle(HttpExchange exchange) throws IOException {
-        System.out.println("Requested: " + exchange.getRequestURI());
-        int status = 200;
-        String body = "";
-        boolean found = false;
+        try {
+            System.out.println("Requested: " + exchange.getRequestURI());
+            int status = 200;
+            String body = "";
+            boolean found = false;
 
-        for (Route route: routes.keySet()) {
-            if (route.getPath().equalsIgnoreCase(exchange.getRequestURI().getPath())) {
-                try {
-                    WebResponse response = this.routes.get(route).process();
-                    body = response.body;
+            exchange.getRequestURI().getQuery();
 
-                } catch (Exception e) {
-                    status = 500;
-                    body = "Internal server error";
+            WebRequest request = WebRequest.fromExchange(exchange);
+
+            for (Route route : routes.keySet()) {
+                if (route.getPath().equalsIgnoreCase(exchange.getRequestURI().getPath())) {
+                    try {
+                        WebResponse response = this.routes.get(route).process(request);
+                        body = response.getBody();
+
+                    } catch (Exception e) {
+                        e.printStackTrace(System.err);
+                        status = 500;
+                        body = "Internal server error";
+                    }
+                    found = true;
+                    break;
                 }
-                found = true;
-                break;
             }
+
+            if (!found) {
+                status = 404;
+                body = "Not found";
+            }
+            
+            exchange.sendResponseHeaders(status, body.getBytes().length);
+            exchange.getResponseBody().write(body.getBytes());
+            exchange.getResponseBody().close();
+        } catch (Exception e) {
+            e.printStackTrace(System.err);
         }
-
-        if (!found) {
-            status = 404;
-            body = "Not found";
-        }
-
-
-        exchange.sendResponseHeaders(status, body.getBytes().length);
-        exchange.getResponseBody().write(body.getBytes());
-        exchange.getResponseBody().close();
     }
 
     public void start() throws Exception {
         HttpServer server = HttpServer.create(new InetSocketAddress(this.port), 0);
         server.createContext("/", this);
+        server.setExecutor(null);
         server.start();
     }
 }
