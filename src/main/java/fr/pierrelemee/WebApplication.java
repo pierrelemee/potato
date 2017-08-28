@@ -10,11 +10,11 @@ import java.net.InetSocketAddress;
 
 public class WebApplication implements HttpHandler {
 
-    protected final int port;
+    private static final Integer DEFAULT_PORT = 8123;
+
     protected Router router;
 
-    public WebApplication(int port) {
-        this.port = port;
+    public WebApplication() {
         this.router = new Router();
     }
 
@@ -26,9 +26,10 @@ public class WebApplication implements HttpHandler {
     }
 
     public void handle(HttpExchange exchange) throws IOException {
+
         try {
             System.out.println("Requested: " + exchange.getRequestURI());
-            int status = 200;
+            int status;
             String body;
 
             WebRequest request = WebRequest.fromExchange(exchange);
@@ -38,6 +39,7 @@ public class WebApplication implements HttpHandler {
                 try {
                     WebResponse response = route.getProcess().process(request);
                     body = response.getBody();
+                    status = response.getStatus();
                 } catch (Exception e) {
                     e.printStackTrace(System.err);
                     status = 500;
@@ -60,7 +62,11 @@ public class WebApplication implements HttpHandler {
     }
 
     public void start() throws Exception {
-        HttpServer server = HttpServer.create(new InetSocketAddress(this.port), 0);
+        this.start(DEFAULT_PORT);
+    }
+
+    public void start(int port) throws Exception {
+        HttpServer server = HttpServer.create(new InetSocketAddress(port), 0);
         server.createContext("/", this);
         server.setExecutor(null);
         server.start();

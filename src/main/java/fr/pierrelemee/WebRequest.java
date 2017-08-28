@@ -67,8 +67,6 @@ public class WebRequest {
     }
 
     public static WebRequest fromExchange(HttpExchange exchange) {
-        System.out.println(exchange.getRequestURI().getPath());
-
         return new WebRequest(exchange.getRequestURI().getPath(),
                 HttpMethod.valueOf(exchange.getRequestMethod()),
                 parameters(exchange.getRequestURI().getQuery())
