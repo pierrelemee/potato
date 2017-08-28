@@ -31,6 +31,19 @@ public class MockClient {
         return exchange;
     }
 
+    public MockExchange post(String path) throws IOException {
+        MockExchange exchange = new MockExchange();
+
+        exchange.uri = URI.create(path);
+        exchange.method = HttpMethod.POST.name();
+
+        this.app.handle(exchange);
+
+        exchange.getResponseBody().flush();
+
+        return exchange;
+    }
+
     public static class MockExchange extends HttpExchange {
 
         protected String method;

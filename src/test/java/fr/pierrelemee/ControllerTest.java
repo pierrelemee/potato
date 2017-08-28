@@ -18,4 +18,17 @@ public class ControllerTest {
         assertEquals("test - index", exchange.getResponseBodyString());
     }
 
+    @Test
+    public void testSimpleNotFoundController() throws Exception {
+        WebApplication app = new WebApplication();
+        app.addController(new TestController());
+
+        MockClient client = new MockClient(app);
+
+        MockClient.MockExchange exchange = client.post("/test");
+
+        assertEquals(404, exchange.getResponseCode());
+        assertEquals("Not found", exchange.getResponseBodyString());
+    }
+
 }
