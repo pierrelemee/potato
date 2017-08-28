@@ -1,5 +1,7 @@
 package fr.pierrelemee.annotations;
 
+import fr.pierrelemee.HttpMethod;
+
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -13,5 +15,5 @@ public @interface Route {
 
     String path() default "/";
 
-    String method() default "GET";
+    HttpMethod method() default HttpMethod.GET;
 }
