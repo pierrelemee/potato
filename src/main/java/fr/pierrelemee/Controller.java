@@ -5,13 +5,15 @@ import java.util.*;
 
 public abstract class Controller {
 
-    public Map<Route, RequestProcess> routes() {
-        Map<Route, RequestProcess> routes = new LinkedHashMap<>();
+    public List<Route> routes() {
+        List<Route> routes = new LinkedList<>();
 
         for (Method method: this.getClass().getDeclaredMethods()) {
             if (method.isAnnotationPresent(fr.pierrelemee.annotations.Route.class)) {
                 if (method.getReturnType().equals(WebResponse.class)) {
-                    routes.put(Route.fromAnnotation(method.getAnnotation(fr.pierrelemee.annotations.Route.class)), new ControllerRequestProcess(this, method));
+                    Route route = Route.fromAnnotation(method.getAnnotation(fr.pierrelemee.annotations.Route.class));
+                    route.setProcess(new ControllerRequestProcess(this, method));
+                    routes.add(route);
                 }
             }
         }

@@ -6,64 +6,66 @@ import com.sun.net.httpserver.HttpServer;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.util.LinkedHashMap;
-import java.util.Map;
 
 public class WebApplication implements HttpHandler {
 
-    protected final int port;
-    protected Map<Route, RequestProcess> routes = new LinkedHashMap<>();
+    private static final Integer DEFAULT_PORT = 8123;
 
-    public WebApplication(int port) {
-        this.port = port;
+    protected Router router;
+
+    public WebApplication() {
+        this.router = new Router();
     }
 
     public void addController(Controller controller) {
-        this.routes.putAll(controller.routes());
+
+        for (Route route: controller.routes()) {
+            this.router.addRoute(route);
+        }
     }
 
     public void handle(HttpExchange exchange) throws IOException {
+
         try {
             System.out.println("Requested: " + exchange.getRequestURI());
-            int status = 200;
-            String body = "";
-            boolean found = false;
-
-            exchange.getRequestURI().getQuery();
+            int status;
+            String body;
 
             WebRequest request = WebRequest.fromExchange(exchange);
+            Route route = this.router.match(request);
 
-            for (Route route : routes.keySet()) {
-                if (route.getPath().equalsIgnoreCase(exchange.getRequestURI().getPath())) {
-                    try {
-                        WebResponse response = this.routes.get(route).process(request);
-                        body = response.getBody();
-
-                    } catch (Exception e) {
-                        e.printStackTrace(System.err);
-                        status = 500;
-                        body = "Internal server error";
-                    }
-                    found = true;
-                    break;
+            if (null != route) {
+                try {
+                    WebResponse response = route.getProcess().process(request);
+                    body = response.getBody();
+                    status = response.getStatus();
+                } catch (Exception e) {
+                    e.printStackTrace(System.err);
+                    status = 500;
+                    body = "Internal server error";
                 }
-            }
-
-            if (!found) {
+            } else {
                 status = 404;
                 body = "Not found";
             }
-            
+
             exchange.sendResponseHeaders(status, body.getBytes().length);
             exchange.getResponseBody().write(body.getBytes());
             exchange.getResponseBody().close();
         } catch (Exception e) {
             e.printStackTrace(System.err);
+            exchange.sendResponseHeaders(500, "Internal server error".getBytes().length);
+            exchange.getResponseBody().write("Internal server error".getBytes());
+            exchange.getResponseBody().close();
         }
     }
 
     public void start() throws Exception {
-        HttpServer server = HttpServer.create(new InetSocketAddress(this.port), 0);
+        this.start(DEFAULT_PORT);
+    }
+
+    public void start(int port) throws Exception {
+        HttpServer server = HttpServer.create(new InetSocketAddress(port), 0);
         server.createContext("/", this);
         server.setExecutor(null);
         server.start();

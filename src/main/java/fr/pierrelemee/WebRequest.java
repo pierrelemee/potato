@@ -26,7 +26,7 @@ public class WebRequest {
     }
 
     public WebRequest(String path, HttpMethod method, Map<String, List<String>> get) {
-        this.path = path.substring(0, Math.max(path.indexOf('?'), 0));
+        this.path = path;
         this.method = method;
         this.get = get;
         this.headers = Collections.emptyMap();
@@ -34,14 +34,16 @@ public class WebRequest {
 
     public static Map<String, List<String>> parameters(String query) {
         Map<String, List<String>> parameters = new LinkedHashMap<>();
-        int index = query.indexOf('?');
 
-        for (String parameter: query.substring(index + 1).split("&")) {
-            index = parameter.indexOf('=');
-            if (index > -1) {
-                parameters.put(parameter.substring(0, index), Collections.singletonList(parameter.substring(index + 1)));
-            } else {
-                parameters.put(parameter, Collections.singletonList("true"));
+        if (query != null && !query.isEmpty()) {
+            int index;
+            for (String parameter: query.split("&")) {
+                index = parameter.indexOf('=');
+                if (index > -1) {
+                    parameters.put(parameter.substring(0, index), Collections.singletonList(parameter.substring(index + 1)));
+                } else {
+                    parameters.put(parameter, Collections.singletonList("true"));
+                }
             }
         }
 
