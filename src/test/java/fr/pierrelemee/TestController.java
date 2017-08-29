@@ -14,4 +14,9 @@ public class TestController extends Controller {
         String name = request.get().containsKey("name") ? request.get().get("name").get(0) : "";
         return new WebResponse("test - query: " + name);
     }
+
+    @Route(name = "test_hello", path = "/test/hello/<name>")
+    public WebResponse hello(WebRequest request) {
+        return new WebResponse("test - hello " + request.variable("name") + " !");
+    }
 }

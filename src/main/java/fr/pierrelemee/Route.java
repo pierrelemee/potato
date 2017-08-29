@@ -2,6 +2,8 @@ package fr.pierrelemee;
 
 public class Route {
 
+    public static final String SEPARATOR = "/";
+
     protected String name;
     protected HttpMethod method;
     protected String path;
