@@ -75,4 +75,17 @@ public class ControllerTest {
         WebApplication app = new WebApplication();
         app.addController(new DuplicateRouteNameInconsistentController());
     }
+
+    @Test
+    public void testGetRouteByeName() throws Exception {
+        Router router = new Router();
+
+        WebApplication app = new WebApplication(router);
+        app.addController(new TestController());
+
+        Route route = router.findRouteByName("test_index");
+        assertNotNull(route);
+        assertEquals("/test", route.getPath());
+        assertEquals(HttpMethod.GET, route.getMethod());
+    }
 }
