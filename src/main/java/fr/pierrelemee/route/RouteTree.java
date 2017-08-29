@@ -67,25 +67,25 @@ public class RouteTree {
         return false;
     }
 
-    public final Route getMatchingRoute(WebRequest request) {
-        return this.getMatchingRoute(request, buildPathElements(request.getPath()));
+    public final RouteMatching getMatchingRoute(WebRequest request) {
+        return this.getMatchingRoute(buildPathElements(request.getPath()), new LinkedHashMap<>());
     }
 
-    protected Route getMatchingRoute(WebRequest request, List<String> elements) {
+    protected RouteMatching getMatchingRoute(List<String> elements, Map<String, String> variables) {
         if (elements.isEmpty()) {
-            return this.route;
+            return new RouteMatching(this.route, variables);
         }
 
         if (this.children.containsKey(elements.get(0))) {
-            return this.children.get(elements.get(0)).getMatchingRoute(request, elements.subList(1, elements.size()));
+            return this.children.get(elements.get(0)).getMatchingRoute(elements.subList(1, elements.size()), variables);
         }
 
         if (this.variable != null) {
-            request.addVariable(this.variable, elements.get(0));
-            return this.child != null ? this.child.getMatchingRoute(request, elements.subList(1, elements.size())) : null;
+            variables.put(this.variable, elements.get(0));
+            return this.child != null ? this.child.getMatchingRoute(elements.subList(1, elements.size()), variables) : null;
         }
 
-        return null;
+        return RouteMatching.none();
     }
 
     static List<String> buildPathElements(String path) {

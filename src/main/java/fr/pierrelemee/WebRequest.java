@@ -52,8 +52,8 @@ public class WebRequest {
         return parameters;
     }
 
-    public void addVariable(String name, String value) {
-        this.variables.put(name, value);
+    protected void addVariables(Map<String, String> variables) {
+        this.variables.putAll(variables);
     }
 
     public void clearVariables() {

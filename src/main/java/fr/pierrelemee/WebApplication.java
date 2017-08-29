@@ -3,6 +3,7 @@ package fr.pierrelemee;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
+import fr.pierrelemee.route.RouteMatching;
 import fr.pierrelemee.route.RouterException;
 
 import java.io.IOException;
@@ -33,11 +34,12 @@ public class WebApplication implements HttpHandler {
             String body;
 
             WebRequest request = WebRequest.fromExchange(exchange);
-            Route route = this.router.match(request);
+            RouteMatching matching = this.router.match(request);
 
-            if (null != route) {
+            if (matching.hasRoute()) {
                 try {
-                    WebResponse response = route.getProcess().process(request);
+                    request.addVariables(matching.getVariables());
+                    WebResponse response = matching.getRoute().getProcess().process(request);
                     body = response.getBody();
                     status = response.getStatus();
                 } catch (Exception e) {

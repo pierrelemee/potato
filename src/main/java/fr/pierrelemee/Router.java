@@ -1,5 +1,6 @@
 package fr.pierrelemee;
 
+import fr.pierrelemee.route.RouteMatching;
 import fr.pierrelemee.route.RouteTree;
 import fr.pierrelemee.route.RouterException;
 
@@ -21,11 +22,11 @@ public class Router {
         this.routes.get(route.getMethod()).addRoute(route);
     }
 
-    public Route match(WebRequest request) {
+    public RouteMatching match(WebRequest request) {
         if (this.routes.containsKey(request.getMethod())) {
             return this.routes.get(request.getMethod()).getMatchingRoute(request);
         }
 
-        return null;
+        return RouteMatching.none();
     }
 }
