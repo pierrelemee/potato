@@ -19,7 +19,7 @@ public class ControllerTest {
     }
 
     @Test
-    public void testGetWithPathVariable() throws Exception {
+    public void testGetWithSimplePathVariable() throws Exception {
         WebApplication app = new WebApplication();
         app.addController(new TestController());
 
@@ -29,6 +29,19 @@ public class ControllerTest {
 
         assertEquals(200, exchange.getResponseCode());
         assertEquals("test - hello Chuck !", exchange.getResponseBodyString());
+    }
+
+    @Test
+    public void testGetWithComplexPathVariable() throws Exception {
+        WebApplication app = new WebApplication();
+        app.addController(new CalculatorController());
+
+        MockClient client = new MockClient(app);
+
+        MockClient.MockExchange exchange = client.get("/calculator/5/2/sum");
+
+        assertEquals(200, exchange.getResponseCode());
+        assertEquals("Sum is 7", exchange.getResponseBodyString());
     }
 
     @Test
