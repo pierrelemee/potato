@@ -32,10 +32,17 @@ public class Router {
     private static class RouteTree {
 
         protected Route route;
+        protected String variable;
         protected Map<String, RouteTree> children;
 
         RouteTree() {
             this(null);
+        }
+
+        private RouteTree(Route route, String variable) {
+            this.route = route;
+            this.variable = variable;
+            this.children = Collections.emptyMap();
         }
 
         private RouteTree(Route route) {
@@ -51,25 +58,36 @@ public class Router {
             if (elements.isEmpty()) {
                 this.route = route;
             } else {
-                if (!this.children.containsKey(elements.get(0))) {
-                    this.children.put(elements.get(0), new RouteTree());
-                }
+                if (elements.get(0).matches("<.*>")) {
+                    this.variable = elements.get(0).substring(1, elements.get(0).length() - 1);
+                    this.route = route;
+                    // TODO what if the tree already has any child :o ?
+                } else {
+                    if (!this.children.containsKey(elements.get(0))) {
+                        this.children.put(elements.get(0), new RouteTree());
+                    }
 
-                this.children.get(elements.get(0)).addRoute(route, elements.subList(1, elements.size()));
+                    this.children.get(elements.get(0)).addRoute(route, elements.subList(1, elements.size()));
+                }
             }
         }
 
         public Route match(WebRequest request) {
-            return this.match(Arrays.stream(request.getPath().split(SEPARATOR)).filter(s -> !s.isEmpty()).collect(Collectors.toList()));
+            return this.match(request, Arrays.stream(request.getPath().split(SEPARATOR)).filter(s -> !s.isEmpty()).collect(Collectors.toList()));
         }
 
-        protected Route match(List<String> elements) {
+        protected Route match(WebRequest request, List<String> elements) {
             if (elements.isEmpty()) {
                 return this.route;
             }
 
+            if (this.variable != null) {
+                request.addVariable(this.variable, elements.get(0));
+                return this.route;
+            }
+
             if (this.children.containsKey(elements.get(0))) {
-                return this.children.get(elements.get(0)).match(elements.subList(1, elements.size()));
+                return this.children.get(elements.get(0)).match(request, elements.subList(1, elements.size()));
             }
 
             return null;

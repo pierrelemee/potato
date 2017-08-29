@@ -13,6 +13,7 @@ public class WebRequest {
 
     protected HttpMethod method;
     protected String path;
+    protected Map<String, String> variables;
     protected Map<String, String> headers;
     protected Map<String, List<String>> get;
     protected Map<String, List<String>> post;
@@ -29,6 +30,7 @@ public class WebRequest {
         this.path = path;
         this.method = method;
         this.get = get;
+        this.variables = new LinkedHashMap<>();
         this.headers = Collections.emptyMap();
     }
 
@@ -48,6 +50,14 @@ public class WebRequest {
         }
 
         return parameters;
+    }
+
+    public void addVariable(String name, String value) {
+        this.variables.put(name, value);
+    }
+
+    public String variable(String name) {
+        return this.variables.containsKey(name) ? this.variables.get(name) : null;
     }
 
     public HttpMethod getMethod() {
