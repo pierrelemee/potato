@@ -9,7 +9,10 @@ public class TestController extends Controller {
 
     @Route(name = "test_index", path = "/test")
     public WebResponse index() {
-        return new WebResponse("test - index");
+        return WebResponse
+            .ok()
+            .writeBody("test - index")
+            .addHeader("Foo", "bar");
     }
 
     @Route(name = "test_query", path = "/test/query")

@@ -4,7 +4,8 @@ import fr.pierrelemee.route.RouteMatching;
 import fr.pierrelemee.route.RouteTree;
 import fr.pierrelemee.route.RouterException;
 
-import java.util.*;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 public class Router {
 

@@ -46,6 +46,7 @@ public class WebApplication implements HttpHandler {
                     WebResponse response = matching.getRoute().getProcess().process(request);
                     body = response.getBody();
                     status = response.getStatus();
+                    exchange.getResponseHeaders().putAll(response.getHeaders());
                 } catch (Exception e) {
                     e.printStackTrace(System.err);
                     status = 500;

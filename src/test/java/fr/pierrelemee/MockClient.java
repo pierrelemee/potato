@@ -55,18 +55,19 @@ public class MockClient {
         protected ByteArrayOutputStream responseBody;
 
         public MockExchange() {
+            this.requestHeaders = new Headers();
             this.responseHeaders = new Headers();
             this.responseBody = new ByteArrayOutputStream();
         }
 
         @Override
         public Headers getRequestHeaders() {
-            return null;
+            return this.requestHeaders;
         }
 
         @Override
         public Headers getResponseHeaders() {
-            return this.requestHeaders;
+            return this.responseHeaders;
         }
 
         @Override
@@ -126,7 +127,7 @@ public class MockClient {
 
         @Override
         public String getProtocol() {
-            return null;
+            return "mockp";
         }
 
         @Override

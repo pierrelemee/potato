@@ -30,6 +30,7 @@ public class ControllerRequestProcess implements RequestProcess {
             parameters[this.indexRequest] = request;
         }
 
-        return (WebResponse) this.method.invoke(this.controller, parameters);
+        WebResponse response = (WebResponse) this.method.invoke(this.controller, parameters);
+        return response;
     }
 }

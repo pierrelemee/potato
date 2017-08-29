@@ -1,5 +1,8 @@
-package fr.pierrelemee;
+package fr.pierrelemee.controllers;
 
+import fr.pierrelemee.Controller;
+import fr.pierrelemee.WebRequest;
+import fr.pierrelemee.WebResponse;
 import fr.pierrelemee.annotations.Route;
 
 public class CalculatorController extends Controller {

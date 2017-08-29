@@ -1,5 +1,6 @@
 package fr.pierrelemee;
 
+import fr.pierrelemee.controllers.*;
 import fr.pierrelemee.route.RouterException;
 import org.junit.Test;
 import static org.junit.Assert.*;
@@ -17,6 +18,8 @@ public class ControllerTest {
 
         assertEquals(200, exchange.getResponseCode());
         assertEquals("test - index", exchange.getResponseBodyString());
+        assertTrue(exchange.responseHeaders.containsKey("Foo"));
+        assertTrue(exchange.responseHeaders.get("Foo").contains("bar"));
     }
 
     @Test
