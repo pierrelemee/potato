@@ -56,6 +56,10 @@ public class WebRequest {
         this.variables.put(name, value);
     }
 
+    public void clearVariables() {
+        this.variables.clear();
+    }
+
     public String variable(String name) {
         return this.variables.containsKey(name) ? this.variables.get(name) : null;
     }
