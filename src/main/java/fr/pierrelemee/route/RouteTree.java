@@ -37,8 +37,13 @@ public class RouteTree {
             this.route = route;
         } else {
             if (elements.get(0).matches(VARIABLE_PATTERN)) {
+                String variable = elements.get(0).substring(1, elements.get(0).length() - 1);
                 if (this.variable != null) {
-                    throw new RouterException("Conflicting variable " + elements.get(0) + " with " + this.variable);
+                    throw new RouterException("Conflicting variable " + variable + " with " + this.variable);
+                }
+
+                if (this.findVariable(variable)) {
+                    throw new RouterException("Duplicate variable " + variable + " in tree");
                 }
 
                 this.variable = elements.get(0).substring(1, elements.get(0).length() - 1);
@@ -52,6 +57,14 @@ public class RouteTree {
                 this.children.get(elements.get(0)).addRoute(route, elements.subList(1, elements.size()));
             }
         }
+    }
+
+    protected boolean findVariable(String name) {
+        if (this.parent != null) {
+            return this.parent.variable != null && this.parent.variable.equalsIgnoreCase(name);
+        }
+
+        return false;
     }
 
     public final Route getMatchingRoute(WebRequest request) {

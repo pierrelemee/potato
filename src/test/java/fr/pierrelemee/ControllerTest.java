@@ -59,9 +59,15 @@ public class ControllerTest {
     }
 
     @Test(expected = RouterException.class)
-    public void testInconsistentController() throws Exception {
+    public void testConflictingVariableInconsistentController() throws Exception {
         WebApplication app = new WebApplication();
-        app.addController(new InconsistentController());
+        app.addController(new ConflictingVariableInconsistentController());
+    }
+
+    @Test(expected = RouterException.class)
+    public void testDuplicateVariableNameInconsistentController() throws Exception {
+        WebApplication app = new WebApplication();
+        app.addController(new DuplicateVariableNameInconsistentController());
     }
 
 }

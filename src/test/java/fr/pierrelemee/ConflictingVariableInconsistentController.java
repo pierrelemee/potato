@@ -2,7 +2,7 @@ package fr.pierrelemee;
 
 import fr.pierrelemee.annotations.Route;
 
-public class InconsistentController extends Controller {
+public class ConflictingVariableInconsistentController extends Controller {
 
     @Route(name = "inconsistent_a", path = "/inconsistent/<a>")
     public WebResponse a() {
