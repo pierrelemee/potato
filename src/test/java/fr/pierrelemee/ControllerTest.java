@@ -19,6 +19,19 @@ public class ControllerTest {
     }
 
     @Test
+    public void testGetWithPathVariable() throws Exception {
+        WebApplication app = new WebApplication();
+        app.addController(new TestController());
+
+        MockClient client = new MockClient(app);
+
+        MockClient.MockExchange exchange = client.get("/test/hello/Chuck");
+
+        assertEquals(200, exchange.getResponseCode());
+        assertEquals("test - hello Chuck !", exchange.getResponseBodyString());
+    }
+
+    @Test
     public void testSimpleNotFoundController() throws Exception {
         WebApplication app = new WebApplication();
         app.addController(new TestController());
