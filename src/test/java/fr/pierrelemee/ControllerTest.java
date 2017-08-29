@@ -1,5 +1,6 @@
 package fr.pierrelemee;
 
+import fr.pierrelemee.route.RouterException;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
@@ -55,6 +56,12 @@ public class ControllerTest {
 
         assertEquals(404, exchange.getResponseCode());
         assertEquals("Not found", exchange.getResponseBodyString());
+    }
+
+    @Test(expected = RouterException.class)
+    public void testInconsistentController() throws Exception {
+        WebApplication app = new WebApplication();
+        app.addController(new InconsistentController());
     }
 
 }

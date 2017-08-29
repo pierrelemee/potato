@@ -1,12 +1,11 @@
 package fr.pierrelemee;
 
 import fr.pierrelemee.route.RouteTree;
+import fr.pierrelemee.route.RouterException;
 
 import java.util.*;
 
 public class Router {
-
-    private static final String SEPARATOR = "/";
 
     protected Map<HttpMethod, RouteTree> routes;
 
@@ -14,7 +13,7 @@ public class Router {
         this.routes = new LinkedHashMap<>();
     }
 
-    public void addRoute(Route route) {
+    public void addRoute(Route route) throws RouterException {
         if (!this.routes.containsKey(route.getMethod())) {
             this.routes.put(route.getMethod(), new RouteTree());
         }

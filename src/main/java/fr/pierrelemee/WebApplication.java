@@ -3,6 +3,7 @@ package fr.pierrelemee;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
+import fr.pierrelemee.route.RouterException;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -17,7 +18,7 @@ public class WebApplication implements HttpHandler {
         this.router = new Router();
     }
 
-    public void addController(Controller controller) {
+    public void addController(Controller controller) throws RouterException {
 
         for (Route route: controller.routes()) {
             this.router.addRoute(route);
