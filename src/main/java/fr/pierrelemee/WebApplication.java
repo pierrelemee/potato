@@ -16,7 +16,11 @@ public class WebApplication implements HttpHandler {
     protected Router router;
 
     public WebApplication() {
-        this.router = new Router();
+        this(new Router());
+    }
+
+    public WebApplication(Router router) {
+        this.router = router;
     }
 
     public void addController(Controller controller) throws RouterException {

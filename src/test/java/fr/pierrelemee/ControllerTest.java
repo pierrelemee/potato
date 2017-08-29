@@ -70,4 +70,9 @@ public class ControllerTest {
         app.addController(new DuplicateVariableNameInconsistentController());
     }
 
+    @Test(expected = RouterException.class)
+    public void testDuplicateRouteNameInconsistentController() throws Exception {
+        WebApplication app = new WebApplication();
+        app.addController(new DuplicateRouteNameInconsistentController());
+    }
 }
