@@ -83,6 +83,10 @@ public class Cookie {
         return this.value != null;
     }
 
+    public boolean hasExpired() {
+        return this.expires.compareTo(ZonedDateTime.now(ZoneId.of("UTC"))) < 0;
+    }
+
     public String getValue() {
         return this.value;
     }

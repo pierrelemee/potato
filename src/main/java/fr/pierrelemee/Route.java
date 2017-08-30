@@ -42,7 +42,7 @@ public class Route {
     @Override
     public boolean equals(Object obj) {
         if (obj instanceof Route) {
-            return this.name.equalsIgnoreCase(((Route)obj).name);
+            return this.name.equalsIgnoreCase(((Route) obj).name);
         }
 
         return false;

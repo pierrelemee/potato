@@ -25,47 +25,42 @@ public class WebApplication implements HttpHandler {
 
     public void addController(Controller controller) throws RouterException {
 
-        for (Route route: controller.routes()) {
+        for (Route route : controller.routes()) {
             this.router.addRoute(route);
         }
     }
 
     public void handle(HttpExchange exchange) throws IOException {
+        WebResponse response = this.request(WebRequest.fromExchange(exchange));
 
-        try {
-            System.out.println("Requested: " + exchange.getRequestURI());
-            int status;
-            String body;
+        exchange.getResponseHeaders().putAll(response.getHeaders());
+        exchange.sendResponseHeaders(response.getStatus(), response.getBody().getBytes().length);
+        exchange.getResponseBody().write(response.getBody().getBytes());
+        exchange.getResponseBody().close();
+    }
 
-            WebRequest request = WebRequest.fromExchange(exchange);
-            RouteMatching matching = this.router.match(request);
+    public WebResponse request(WebRequest request) {
+        System.out.println("Requested: " + request.getPath());
 
-            if (matching.hasRoute()) {
-                try {
-                    request.addVariables(matching.getVariables());
-                    WebResponse response = matching.getRoute().getProcess().process(request);
-                    body = response.getBody();
-                    status = response.getStatus();
-                    exchange.getResponseHeaders().putAll(response.getHeaders());
-                } catch (Exception e) {
-                    e.printStackTrace(System.err);
-                    status = 500;
-                    body = "Internal server error";
-                }
-            } else {
-                status = 404;
-                body = "Not found";
+        RouteMatching matching = this.router.match(request);
+
+        if (matching.hasRoute()) {
+            try {
+                request.addVariables(matching.getVariables());
+                return matching.getRoute().getProcess().process(request);
+
+            } catch (Exception e) {
+                return
+                        WebResponse
+                                .status(500)
+                                .writeBody("Internal server error");
             }
-
-            exchange.sendResponseHeaders(status, body.getBytes().length);
-            exchange.getResponseBody().write(body.getBytes());
-            exchange.getResponseBody().close();
-        } catch (Exception e) {
-            e.printStackTrace(System.err);
-            exchange.sendResponseHeaders(500, "Internal server error".getBytes().length);
-            exchange.getResponseBody().write("Internal server error".getBytes());
-            exchange.getResponseBody().close();
         }
+
+        return
+                WebResponse
+                        .status(404)
+                        .writeBody("Not found");
     }
 
     public void start() throws Exception {

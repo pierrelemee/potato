@@ -15,7 +15,7 @@ public class ControllerRequestProcess implements RequestProcess {
         this.indexRequest = -1;
         int index = 0;
 
-        for (Parameter parameter: this.method.getParameters()) {
+        for (Parameter parameter : this.method.getParameters()) {
             if (parameter.getType().equals(WebRequest.class)) {
                 this.indexRequest = index;
             }

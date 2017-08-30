@@ -10,6 +10,8 @@ import java.util.Map;
 
 public class WebRequest {
 
+    private static final String COOKIE_HEADER_NAME = "Cookie";
+
     protected HttpMethod method;
     protected String path;
     protected Map<String, String> variables;
@@ -23,7 +25,7 @@ public class WebRequest {
     }
 
     public WebRequest(String path, HttpMethod method) {
-        this(path, method, Collections.emptyMap(), Collections.emptyMap());
+        this(path, method, new LinkedHashMap<>(), new LinkedHashMap<>());
     }
 
     public WebRequest(String path, HttpMethod method, Map<String, List<String>> headers, Map<String, List<String>> get) {
@@ -34,17 +36,7 @@ public class WebRequest {
         this.cookies = new LinkedHashMap<>();
         this.headers = headers;
 
-        if (this.headers.containsKey("Cookie")) {
-            for (String header: this.headers.get("Cookie")) {
-                for (String cookie: header.split(";")) {
-                    cookie = cookie.trim();
-                    int index = cookie.indexOf('=');
-                    if (index >= 0) {
-                        this.cookies.put(cookie.substring(0, index), cookie.substring(index + 1));
-                    }
-                }
-            }
-        }
+        this.exctractCookies();
     }
 
     public static Map<String, List<String>> parameters(String query) {
@@ -52,7 +44,7 @@ public class WebRequest {
 
         if (query != null && !query.isEmpty()) {
             int index;
-            for (String parameter: query.split("&")) {
+            for (String parameter : query.split("&")) {
                 index = parameter.indexOf('=');
                 if (index > -1) {
                     parameters.put(parameter.substring(0, index), Collections.singletonList(parameter.substring(index + 1)));
@@ -67,6 +59,32 @@ public class WebRequest {
 
     protected void addVariables(Map<String, String> variables) {
         this.variables.putAll(variables);
+    }
+
+    protected void addHeader(String name, String value) {
+        if (this.headers.containsKey(name)) {
+            this.headers.get(name).add(value);
+        } else {
+            this.headers.put(name, Collections.singletonList(value));
+        }
+
+        if (name.trim().equalsIgnoreCase(COOKIE_HEADER_NAME)) {
+            this.exctractCookies();
+        }
+    }
+
+    protected void exctractCookies() {
+        if (this.headers.containsKey(COOKIE_HEADER_NAME)) {
+            for (String header : this.headers.get(COOKIE_HEADER_NAME)) {
+                for (String cookie : header.split(";")) {
+                    cookie = cookie.trim();
+                    int index = cookie.indexOf('=');
+                    if (index >= 0) {
+                        this.cookies.put(cookie.substring(0, index), cookie.substring(index + 1));
+                    }
+                }
+            }
+        }
     }
 
     public String variable(String name) {
@@ -102,6 +120,6 @@ public class WebRequest {
                 HttpMethod.valueOf(exchange.getRequestMethod()),
                 exchange.getRequestHeaders(),
                 parameters(exchange.getRequestURI().getQuery())
-                );
+        );
     }
 }

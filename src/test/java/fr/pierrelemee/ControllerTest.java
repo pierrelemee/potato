@@ -3,6 +3,7 @@ package fr.pierrelemee;
 import fr.pierrelemee.controllers.*;
 import fr.pierrelemee.route.RouterException;
 import org.junit.Test;
+
 import static org.junit.Assert.*;
 
 public class ControllerTest {
@@ -14,51 +15,62 @@ public class ControllerTest {
 
         MockClient client = new MockClient(app);
 
-        MockClient.MockExchange exchange = client.get("/test");
+        WebResponse response = client.get("/test");
 
-        assertEquals(200, exchange.getResponseCode());
-        assertEquals("test - index", exchange.getResponseBodyString());
-        assertTrue(exchange.responseHeaders.containsKey("Foo"));
-        assertTrue(exchange.responseHeaders.get("Foo").contains("bar"));
+        assertEquals(200, response.getStatus());
+        assertEquals("test - index", response.getBody());
+        assertTrue(response.getHeaders().containsKey("Foo"));
+        assertTrue(response.getHeaders().get("Foo").contains("bar"));
     }
 
     @Test
-    public void testGetWithSimplePathVariable() throws Exception {
+    public void testGetWithSimplePathVariable() throws RouterException {
         WebApplication app = new WebApplication();
         app.addController(new TestController());
 
         MockClient client = new MockClient(app);
 
-        MockClient.MockExchange exchange = client.get("/test/hello/Chuck");
+        WebResponse response = client.get("/test/hello/Chuck");
 
-        assertEquals(200, exchange.getResponseCode());
-        assertEquals("test - hello Chuck !", exchange.getResponseBodyString());
+        assertEquals(200, response.getStatus());
+        assertEquals("test - hello Chuck !", response.getBody());
     }
 
     @Test
-    public void testGetWithComplexPathVariable() throws Exception {
+    public void testGetWithComplexPathVariable() throws RouterException {
         WebApplication app = new WebApplication();
         app.addController(new CalculatorController());
 
         MockClient client = new MockClient(app);
 
-        MockClient.MockExchange exchange = client.get("/calculator/5/2/sum");
+        WebResponse response = client.get("/calculator/5/2/sum");
 
-        assertEquals(200, exchange.getResponseCode());
-        assertEquals("Sum is 7", exchange.getResponseBodyString());
+        assertEquals(200, response.getStatus());
+        assertEquals("Sum is 7", response.getBody());
     }
 
     @Test
-    public void testSimpleNotFoundController() throws Exception {
+    public void testCookieStorageController() throws RouterException {
         WebApplication app = new WebApplication();
         app.addController(new TestController());
 
         MockClient client = new MockClient(app);
 
-        MockClient.MockExchange exchange = client.post("/test");
+        WebResponse response = client.get("/test/cookie");
 
-        assertEquals(404, exchange.getResponseCode());
-        assertEquals("Not found", exchange.getResponseBodyString());
+        assertEquals(200, response.getStatus());
+        assertEquals("no foo", response.getBody());
+
+        response = client.get("/test/cookie");
+
+        assertEquals(200, response.getStatus());
+        System.out.println(response.getBody());
+        assertTrue("Unexpected response body on 2nd call", response.getBody().matches("foo = bar[0-9]{1}"));
+    }
+
+    @Test
+    public void testSimpleNotFoundController() throws Exception {
+
     }
 
     @Test(expected = RouterException.class)

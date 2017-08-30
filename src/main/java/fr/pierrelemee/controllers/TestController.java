@@ -14,9 +14,9 @@ public class TestController extends Controller {
     @Route(name = "test_index", path = "/test")
     public WebResponse index() {
         return WebResponse
-            .ok()
-            .writeBody("test - index")
-            .addHeader("Foo", "bar");
+                .ok()
+                .writeBody("test - index")
+                .addHeader("Foo", "bar");
     }
 
     @Route(name = "test_query", path = "/test/query")
@@ -34,19 +34,19 @@ public class TestController extends Controller {
     public WebResponse cookie(WebRequest request) {
         if (request.hasCookie("foo")) {
             return WebResponse
-                .ok()
-                .writeBody("foo = " + request.cookie("foo"));
+                    .ok()
+                    .writeBody("foo = " + request.cookie("foo"));
         } else {
             return WebResponse
-                .ok()
-                .writeBody("no foo")
-                .addCookie(Cookie.Builder
-                    .create("foo")
-                    .setValue("bar" + (new Random().nextInt(10)))
-                    .setPath("/")
-                    .setExpires(5, ChronoUnit.MINUTES)
-                    .build()
-                );
+                    .ok()
+                    .writeBody("no foo")
+                    .addCookie(Cookie.Builder
+                            .create("foo")
+                            .setValue("bar" + (new Random().nextInt(10)))
+                            .setPath("/")
+                            .setExpires(5, ChronoUnit.MINUTES)
+                            .build()
+                    );
         }
     }
 }

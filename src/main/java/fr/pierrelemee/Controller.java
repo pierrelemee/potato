@@ -9,7 +9,7 @@ public abstract class Controller {
     public List<Route> routes() {
         List<Route> routes = new LinkedList<>();
 
-        for (Method method: this.getClass().getDeclaredMethods()) {
+        for (Method method : this.getClass().getDeclaredMethods()) {
             if (method.isAnnotationPresent(fr.pierrelemee.annotations.Route.class)) {
                 if (method.getReturnType().equals(WebResponse.class)) {
                     Route route = Route.fromAnnotation(method.getAnnotation(fr.pierrelemee.annotations.Route.class));
