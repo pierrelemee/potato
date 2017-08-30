@@ -14,13 +14,23 @@ public class WebApplication implements HttpHandler {
     private static final Integer DEFAULT_PORT = 8123;
 
     protected Router router;
+    protected SessionManager sessionManager;
 
     public WebApplication() {
         this(new Router());
     }
 
     public WebApplication(Router router) {
+        this(router, null);
+    }
+
+    public WebApplication(SessionManager sessionManager) {
+        this(null, sessionManager);
+    }
+
+    public WebApplication(Router router, SessionManager sessionManager) {
         this.router = router;
+        this.sessionManager = sessionManager;
     }
 
     public void addController(Controller controller) throws RouterException {
@@ -47,20 +57,26 @@ public class WebApplication implements HttpHandler {
         if (matching.hasRoute()) {
             try {
                 request.addVariables(matching.getVariables());
-                return matching.getRoute().getProcess().process(request);
+                return matching.getRoute().getProcess().process(request, this.getSessionFromRequest(request));
 
             } catch (Exception e) {
-                return
-                        WebResponse
-                                .status(500)
-                                .writeBody("Internal server error");
+                return WebResponse
+                    .status(500)
+                    .writeBody("Internal server error");
             }
         }
 
-        return
-                WebResponse
-                        .status(404)
-                        .writeBody("Not found");
+        return WebResponse
+            .status(404)
+            .writeBody("Not found");
+    }
+
+    protected Session getSessionFromRequest(WebRequest request) {
+        if (this.sessionManager != null) {
+            return this.sessionManager.extract(request);
+        }
+
+        return null;
     }
 
     public void start() throws Exception {
