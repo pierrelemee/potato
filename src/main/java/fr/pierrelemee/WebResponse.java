@@ -47,6 +47,10 @@ public class WebResponse {
         return this;
     }
 
+    public WebResponse addCookie(Cookie cookie) {
+        return this.addHeader("Set-Cookie", cookie.getHeader());
+    }
+
     public Map<String, List<String>> getHeaders() {
         return this.headers;
     }
