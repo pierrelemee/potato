@@ -1,6 +1,5 @@
 package fr.pierrelemee;
 
-import java.io.IOException;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -10,6 +9,7 @@ public class WebResponse {
 
     protected final int status;
     protected StringBuffer body;
+    protected Map<String, Cookie> cookies;
     protected Map<String, List<String>> headers;
 
     private WebResponse() {
@@ -28,6 +28,7 @@ public class WebResponse {
         this.status = status;
         this.body = new StringBuffer();
         this.body.append(body);
+        this.cookies = new LinkedHashMap<>();
         this.headers = new LinkedHashMap<>();
     }
 
@@ -47,6 +48,11 @@ public class WebResponse {
         return this;
     }
 
+    public WebResponse addCookie(Cookie cookie) {
+        this.cookies.put(cookie.getKey(), cookie);
+        return this.addHeader("Set-Cookie", cookie.getHeader());
+    }
+
     public Map<String, List<String>> getHeaders() {
         return this.headers;
     }
@@ -55,8 +61,12 @@ public class WebResponse {
         return status;
     }
 
-    public String getBody() throws IOException {
+    public String getBody() {
         return this.body.toString();
+    }
+
+    public Map<String, Cookie> getCookies() {
+        return cookies;
     }
 
     public static WebResponse ok() {

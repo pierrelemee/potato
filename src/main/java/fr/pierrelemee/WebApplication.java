@@ -14,58 +14,73 @@ public class WebApplication implements HttpHandler {
     private static final Integer DEFAULT_PORT = 8123;
 
     protected Router router;
+    protected SessionManager sessionManager;
 
     public WebApplication() {
         this(new Router());
     }
 
     public WebApplication(Router router) {
+        this(router, null);
+    }
+
+    public WebApplication(SessionManager sessionManager) {
+        this(new Router(), sessionManager);
+    }
+
+    public WebApplication(Router router, SessionManager sessionManager) {
         this.router = router;
+        this.sessionManager = sessionManager;
     }
 
     public void addController(Controller controller) throws RouterException {
 
-        for (Route route: controller.routes()) {
+        for (Route route : controller.routes()) {
             this.router.addRoute(route);
         }
     }
 
     public void handle(HttpExchange exchange) throws IOException {
+        WebResponse response = this.process(WebRequest.fromExchange(exchange));
 
-        try {
-            System.out.println("Requested: " + exchange.getRequestURI());
-            int status;
-            String body;
+        exchange.getResponseHeaders().putAll(response.getHeaders());
+        exchange.sendResponseHeaders(response.getStatus(), response.getBody().getBytes().length);
+        exchange.getResponseBody().write(response.getBody().getBytes());
+        exchange.getResponseBody().close();
+    }
 
-            WebRequest request = WebRequest.fromExchange(exchange);
-            RouteMatching matching = this.router.match(request);
+    public WebResponse process(WebRequest request) {
+        System.out.println("Requested: " + request.getPath());
 
-            if (matching.hasRoute()) {
-                try {
-                    request.addVariables(matching.getVariables());
-                    WebResponse response = matching.getRoute().getProcess().process(request);
-                    body = response.getBody();
-                    status = response.getStatus();
-                    exchange.getResponseHeaders().putAll(response.getHeaders());
-                } catch (Exception e) {
-                    e.printStackTrace(System.err);
-                    status = 500;
-                    body = "Internal server error";
-                }
-            } else {
-                status = 404;
-                body = "Not found";
-            }
+        Session session = this.sessionManager != null ? this.sessionManager.extract(request) : null;
+        WebResponse response = this.getResponse(request, session);
 
-            exchange.sendResponseHeaders(status, body.getBytes().length);
-            exchange.getResponseBody().write(body.getBytes());
-            exchange.getResponseBody().close();
-        } catch (Exception e) {
-            e.printStackTrace(System.err);
-            exchange.sendResponseHeaders(500, "Internal server error".getBytes().length);
-            exchange.getResponseBody().write("Internal server error".getBytes());
-            exchange.getResponseBody().close();
+        if (session != null && !session.isSent()) {
+            response.addCookie(Cookie.Builder.create(this.sessionManager.getSessionCookieName()).setValue(session.getHash()).build());
         }
+
+        return response;
+    }
+
+    protected WebResponse getResponse(WebRequest request, Session session) {
+        RouteMatching matching = this.router.match(request);
+
+        if (matching.hasRoute()) {
+            try {
+                request.addVariables(matching.getVariables());
+                return matching.getRoute().getProcess().process(request, session);
+
+            } catch (Exception e) {
+                e.printStackTrace();
+                return WebResponse
+                    .status(500)
+                    .writeBody("Internal server error");
+            }
+        }
+
+        return WebResponse
+            .status(404)
+            .writeBody("Not found");
     }
 
     public void start() throws Exception {
