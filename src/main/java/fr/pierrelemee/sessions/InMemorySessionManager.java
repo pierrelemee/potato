@@ -7,7 +7,7 @@ import java.util.Map;
 
 public class InMemorySessionManager extends SessionManager<SimpleSession> {
 
-    public static final String COOKIE_NAME = "aplsessionid";
+    public static final String COOKIE_NAME = "ptossnid";
 
     protected Map<String, SimpleSession> sessions;
 

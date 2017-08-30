@@ -14,10 +14,7 @@ public abstract class SessionManager<T extends Session> {
             return this.getSession(request.cookie(this.getSessionCookieName()));
         }
 
-        T session = this.generateSession();
-        this.addSession(session);
-
-        return session;
+        return null;
     }
     public abstract String getSessionCookieName();
 
@@ -27,11 +24,13 @@ public abstract class SessionManager<T extends Session> {
 
     protected abstract void addSession(T session);
 
-    protected T generateSession() {
+    public T createSession() {
         T session = this.factory.createSession();
         while (this.hasSession(session.getHash())) {
             session = this.factory.createSession();
         }
+
+        this.addSession(session);
 
         return session;
     }

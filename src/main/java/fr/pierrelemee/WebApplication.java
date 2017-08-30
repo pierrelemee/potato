@@ -25,7 +25,7 @@ public class WebApplication implements HttpHandler {
     }
 
     public WebApplication(SessionManager sessionManager) {
-        this(null, sessionManager);
+        this(new Router(), sessionManager);
     }
 
     public WebApplication(Router router, SessionManager sessionManager) {
@@ -41,7 +41,7 @@ public class WebApplication implements HttpHandler {
     }
 
     public void handle(HttpExchange exchange) throws IOException {
-        WebResponse response = this.request(WebRequest.fromExchange(exchange));
+        WebResponse response = this.process(WebRequest.fromExchange(exchange));
 
         exchange.getResponseHeaders().putAll(response.getHeaders());
         exchange.sendResponseHeaders(response.getStatus(), response.getBody().getBytes().length);
@@ -49,34 +49,41 @@ public class WebApplication implements HttpHandler {
         exchange.getResponseBody().close();
     }
 
-    public WebResponse request(WebRequest request) {
+    public WebResponse process(WebRequest request) {
         System.out.println("Requested: " + request.getPath());
 
+        Session session = null;
+        boolean created = false;
+
+        if (this.sessionManager != null) {
+            if ((session = this.sessionManager.extract(request)) == null) {
+                session = this.sessionManager.createSession();
+                created = true;
+            }
+        }
+
         RouteMatching matching = this.router.match(request);
+        WebResponse response = WebResponse
+                .status(404)
+                .writeBody("Not found");
 
         if (matching.hasRoute()) {
             try {
                 request.addVariables(matching.getVariables());
-                return matching.getRoute().getProcess().process(request, this.getSessionFromRequest(request));
+                response = matching.getRoute().getProcess().process(request, session);
 
             } catch (Exception e) {
-                return WebResponse
+                response = WebResponse
                     .status(500)
                     .writeBody("Internal server error");
             }
         }
 
-        return WebResponse
-            .status(404)
-            .writeBody("Not found");
-    }
-
-    protected Session getSessionFromRequest(WebRequest request) {
-        if (this.sessionManager != null) {
-            return this.sessionManager.extract(request);
+        if (created) {
+            response.addCookie(Cookie.Builder.create(this.sessionManager.getSessionCookieName()).setValue(session.getHash()).build());
         }
 
-        return null;
+        return response;
     }
 
     public void start() throws Exception {

@@ -41,7 +41,7 @@ public class MockClient {
             );
         }
 
-        WebResponse response = this.app.request(request);
+        WebResponse response = this.app.process(request);
 
         this.cookies.putAll(response.getCookies());
         return response;
