@@ -52,38 +52,34 @@ public class WebApplication implements HttpHandler {
     public WebResponse process(WebRequest request) {
         System.out.println("Requested: " + request.getPath());
 
-        Session session = null;
-        boolean created = false;
+        Session session = this.sessionManager != null ? this.sessionManager.extract(request) : null;
+        WebResponse response = this.getResponse(request, session);
 
-        if (this.sessionManager != null) {
-            if ((session = this.sessionManager.extract(request)) == null) {
-                session = this.sessionManager.createSession();
-                created = true;
-            }
+        if (session != null && !session.isSent()) {
+            response.addCookie(Cookie.Builder.create(this.sessionManager.getSessionCookieName()).setValue(session.getHash()).build());
         }
 
+        return response;
+    }
+
+    protected WebResponse getResponse(WebRequest request, Session session) {
         RouteMatching matching = this.router.match(request);
-        WebResponse response = WebResponse
-                .status(404)
-                .writeBody("Not found");
 
         if (matching.hasRoute()) {
             try {
                 request.addVariables(matching.getVariables());
-                response = matching.getRoute().getProcess().process(request, session);
+                return matching.getRoute().getProcess().process(request, session);
 
             } catch (Exception e) {
-                response = WebResponse
+                return WebResponse
                     .status(500)
                     .writeBody("Internal server error");
             }
         }
 
-        if (created) {
-            response.addCookie(Cookie.Builder.create(this.sessionManager.getSessionCookieName()).setValue(session.getHash()).build());
-        }
-
-        return response;
+        return WebResponse
+            .status(404)
+            .writeBody("Not found");
     }
 
     public void start() throws Exception {
