@@ -5,6 +5,7 @@ import fr.pierrelemee.Cookie;
 import fr.pierrelemee.WebRequest;
 import fr.pierrelemee.WebResponse;
 import fr.pierrelemee.annotations.Route;
+import fr.pierrelemee.sessions.SimpleSession;
 
 import java.time.temporal.ChronoUnit;
 import java.util.Random;
@@ -48,5 +49,12 @@ public class TestController extends Controller {
                     .build()
                 );
         }
+    }
+
+    @Route(name = "test_session", path = "/test/session")
+    public WebResponse session(SimpleSession session) {
+        return WebResponse
+            .ok()
+            .writeBody("counter: " + session.increment());
     }
 }

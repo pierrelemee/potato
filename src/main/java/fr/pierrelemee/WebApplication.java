@@ -71,6 +71,7 @@ public class WebApplication implements HttpHandler {
                 return matching.getRoute().getProcess().process(request, session);
 
             } catch (Exception e) {
+                e.printStackTrace();
                 return WebResponse
                     .status(500)
                     .writeBody("Internal server error");

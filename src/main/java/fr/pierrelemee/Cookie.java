@@ -3,6 +3,7 @@ package fr.pierrelemee;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalUnit;
 import java.util.Locale;
 
@@ -101,6 +102,7 @@ public class Cookie {
 
         public Builder setValue(String value) {
             this.cookie.value = value;
+            this.setExpires(1, ChronoUnit.HOURS);
 
             return this;
         }

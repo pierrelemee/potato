@@ -2,6 +2,7 @@ package fr.pierrelemee;
 
 import fr.pierrelemee.controllers.*;
 import fr.pierrelemee.route.RouterException;
+import fr.pierrelemee.sessions.InMemorySessionManager;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
@@ -69,8 +70,33 @@ public class ControllerTest {
     }
 
     @Test
-    public void testSimpleNotFoundController() throws Exception {
+    public void testSessionController() throws RouterException {
+        SessionManager sessionManager = new InMemorySessionManager();
+        WebApplication app = new WebApplication(sessionManager);
+        app.addController(new TestController());
 
+        MockClient client = new MockClient(app);
+
+        WebResponse response = client.get("/test/session");
+
+        assertEquals(200, response.getStatus());
+        assertEquals("counter: 1", response.getBody());
+
+        response = client.get("/test/session");
+
+        assertEquals(200, response.getStatus());
+        assertEquals("counter: 2", response.getBody());
+    }
+
+    @Test
+    public void testSimpleNotFoundController() throws Exception {
+        WebApplication app = new WebApplication();
+
+        MockClient client = new MockClient(app);
+
+        WebResponse response = client.get("/nowhere");
+
+        assertEquals(404, response.getStatus());
     }
 
     @Test(expected = RouterException.class)
@@ -92,7 +118,7 @@ public class ControllerTest {
     }
 
     @Test
-    public void testGetRouteByeName() throws Exception {
+    public void testGetRouteByName() throws Exception {
         Router router = new Router();
 
         WebApplication app = new WebApplication(router);

@@ -21,7 +21,7 @@ public class ControllerRequestProcess implements RequestProcess {
             if (parameter.getType().equals(WebRequest.class)) {
                 this.indexRequest = index;
             }
-            if (parameter.getType().isAssignableFrom(Session.class)) {
+            if (Session.class.isAssignableFrom(parameter.getType())) {
                 this.indexSession = index;
             }
             index++;
@@ -36,7 +36,7 @@ public class ControllerRequestProcess implements RequestProcess {
         }
 
         if (this.indexSession > -1) {
-            parameters[this.indexRequest] = session;
+            parameters[this.indexSession] = session;
         }
 
         return (WebResponse) this.method.invoke(this.controller, parameters);
