@@ -1,6 +1,7 @@
 package fr.pierrelemee;
 
 import fr.pierrelemee.controllers.*;
+import fr.pierrelemee.renderers.RawRenderer;
 import fr.pierrelemee.route.RouterException;
 import fr.pierrelemee.sessions.InMemorySessionManager;
 import org.junit.Test;
@@ -97,6 +98,19 @@ public class ControllerTest {
         WebResponse response = client.get("/nowhere");
 
         assertEquals(404, response.getStatus());
+    }
+
+    @Test
+    public void testTemplateController() throws Exception {
+        WebApplication app = new WebApplication(new RawRenderer());
+        app.addController(new TestController());
+
+        MockClient client = new MockClient(app);
+
+        WebResponse response = client.get("/test/template");
+
+        assertEquals(200, response.getStatus());
+        assertEquals("This is a template", response.getBody());
     }
 
     @Test(expected = RouterException.class)

@@ -33,18 +33,6 @@ public abstract class Controller {
         return routes;
     }
 
-    protected String render(String resource) {
-        return this.renderer.render(resource);
-    }
-
-    protected String render(String resource, Renderer.Parameter ... parameters) {
-        return this.renderer.render(resource, parameters);
-    }
-
-    protected String render(String resource, Map<String, Object> parameters) {
-        return this.renderer.render(resource, parameters);
-    }
-
     /*
     protected Response<String>  redirect(String location) {
         return this.redirect(location, false);
@@ -55,18 +43,6 @@ public abstract class Controller {
             .of(permanent?Status.MOVED_PERMANENTLY:Status.FOUND, "")
             .withHeader("Location", location);
 
-    }
-
-    protected String render(String resource) {
-        return this.renderer.render(resource);
-    }
-
-    protected String render(String resource, Renderer.Parameter ... parameters) {
-        return this.renderer.render(resource, parameters);
-    }
-
-    protected String render(String resource, Map<String, Object> parameters) {
-        return this.renderer.render(resource, parameters);
     }
     */
 }
