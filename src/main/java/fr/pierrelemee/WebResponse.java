@@ -9,6 +9,7 @@ public class WebResponse {
 
     protected final int status;
     protected StringBuffer body;
+    protected RenderTemplate template;
     protected Map<String, Cookie> cookies;
     protected Map<String, List<String>> headers;
 
@@ -32,10 +33,24 @@ public class WebResponse {
         this.headers = new LinkedHashMap<>();
     }
 
+    public RenderTemplate getTemplate() {
+        return template;
+    }
+
+    public WebResponse setTemplate(RenderTemplate template) {
+        this.template = template;
+
+        return this;
+    }
+
     public WebResponse writeBody(String body) {
         this.body.append(body);
 
         return this;
+    }
+
+    public String getBody() {
+        return this.body.toString();
     }
 
     public WebResponse addHeader(String name, String value) {
@@ -59,10 +74,6 @@ public class WebResponse {
 
     public int getStatus() {
         return status;
-    }
-
-    public String getBody() {
-        return this.body.toString();
     }
 
     public Map<String, Cookie> getCookies() {

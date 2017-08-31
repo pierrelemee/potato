@@ -14,6 +14,7 @@ public class WebApplication implements HttpHandler {
     private static final Integer DEFAULT_PORT = 8123;
 
     protected Router router;
+    protected Renderer renderer;
     protected SessionManager sessionManager;
 
     public WebApplication() {
@@ -21,15 +22,32 @@ public class WebApplication implements HttpHandler {
     }
 
     public WebApplication(Router router) {
-        this(router, null);
+        this(router, null, null);
+    }
+
+    public WebApplication(Renderer renderer) {
+        this(new Router(), null, renderer);
     }
 
     public WebApplication(SessionManager sessionManager) {
         this(new Router(), sessionManager);
     }
 
+    public WebApplication(Router router, Renderer renderer) {
+        this(router, null, renderer);
+    }
+
+    public WebApplication(SessionManager sessionManager, Renderer renderer) {
+        this(new Router(), sessionManager, renderer);
+    }
+
     public WebApplication(Router router, SessionManager sessionManager) {
+        this(router, sessionManager, null);
+    }
+
+    public WebApplication(Router router, SessionManager sessionManager, Renderer renderer) {
         this.router = router;
+        this.renderer = renderer;
         this.sessionManager = sessionManager;
     }
 
@@ -46,6 +64,7 @@ public class WebApplication implements HttpHandler {
         exchange.getResponseHeaders().putAll(response.getHeaders());
         exchange.sendResponseHeaders(response.getStatus(), response.getBody().getBytes().length);
         exchange.getResponseBody().write(response.getBody().getBytes());
+        exchange.getResponseBody().flush();
         exchange.getResponseBody().close();
     }
 
@@ -54,6 +73,10 @@ public class WebApplication implements HttpHandler {
 
         Session session = this.sessionManager != null ? this.sessionManager.extract(request) : null;
         WebResponse response = this.getResponse(request, session);
+
+        if (this.renderer != null && response.getTemplate() != null) {
+            response.writeBody(this.renderer.render(response.getTemplate()));
+        }
 
         if (session != null && !session.isSent()) {
             response.addCookie(Cookie.Builder.create(this.sessionManager.getSessionCookieName()).setValue(session.getHash()).build());
