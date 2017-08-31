@@ -3,7 +3,6 @@ package fr.pierrelemee;
 import java.lang.reflect.Method;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
 public abstract class Controller {
 
@@ -32,17 +31,4 @@ public abstract class Controller {
 
         return routes;
     }
-
-    /*
-    protected Response<String>  redirect(String location) {
-        return this.redirect(location, false);
-    }
-
-    protected Response<String> redirect(String location, boolean permanent) {
-        return Response
-            .of(permanent?Status.MOVED_PERMANENTLY:Status.FOUND, "")
-            .withHeader("Location", location);
-
-    }
-    */
 }

@@ -87,4 +87,14 @@ public class WebResponse {
     public static WebResponse status(int status) {
         return new WebResponse(status);
     }
+
+    public static WebResponse redirect(String location) {
+        return redirect(location, false);
+    }
+
+    public static WebResponse redirect(String location, boolean permanent) {
+        return WebResponse
+            .status(permanent ? 301 : 302)
+            .addHeader("Location", location);
+    }
 }

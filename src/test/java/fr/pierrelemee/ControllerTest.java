@@ -26,6 +26,26 @@ public class ControllerTest {
     }
 
     @Test
+    public void testRedirectionController() throws Exception {
+        WebApplication app = new WebApplication();
+        app.addController(new TestController());
+
+        MockClient client = new MockClient(app);
+
+        WebResponse response = client.get("/test/forbidden");
+
+        assertEquals(301, response.getStatus());
+        assertTrue(response.getHeaders().containsKey("Location"));
+        assertTrue(response.getHeaders().get("Location").contains("/test"));
+
+        response = client.get("/test/profile");
+
+        assertEquals(302, response.getStatus());
+        assertTrue(response.getHeaders().containsKey("Location"));
+        assertTrue(response.getHeaders().get("Location").contains("/test"));
+    }
+
+    @Test
     public void testGetWithSimplePathVariable() throws RouterException {
         WebApplication app = new WebApplication();
         app.addController(new TestController());
