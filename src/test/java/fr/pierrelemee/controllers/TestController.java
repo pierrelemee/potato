@@ -17,6 +17,18 @@ public class TestController extends Controller {
                 .addHeader("Foo", "bar");
     }
 
+    @Route(name = "test_profile", path = "/test/profile")
+    public WebResponse profile() {
+        return WebResponse
+                .redirect("/test");
+    }
+
+    @Route(name = "test_forbidden", path = "/test/forbidden")
+    public WebResponse forbidden() {
+        return WebResponse
+                .redirect("/test", true);
+    }
+
     @Route(name = "test_query", path = "/test/query")
     public WebResponse query(WebRequest request) {
         String name = request.get().containsKey("name") ? request.get().get("name").get(0) : "";
