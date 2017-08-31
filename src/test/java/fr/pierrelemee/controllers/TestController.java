@@ -1,9 +1,6 @@
 package fr.pierrelemee.controllers;
 
-import fr.pierrelemee.Controller;
-import fr.pierrelemee.Cookie;
-import fr.pierrelemee.WebRequest;
-import fr.pierrelemee.WebResponse;
+import fr.pierrelemee.*;
 import fr.pierrelemee.annotations.Route;
 import fr.pierrelemee.sessions.SimpleSession;
 
@@ -56,5 +53,12 @@ public class TestController extends Controller {
         return WebResponse
             .ok()
             .writeBody("counter: " + session.increment());
+    }
+
+    @Route(name = "test_template", path = "/test/template")
+    public WebResponse template(SimpleSession session) {
+        return WebResponse
+                .ok()
+                .setTemplate(new RenderTemplate("/test/template.txt"));
     }
 }

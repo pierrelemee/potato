@@ -3,8 +3,19 @@ package fr.pierrelemee;
 import java.lang.reflect.Method;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 public abstract class Controller {
+
+    protected Renderer renderer;
+
+    public Controller() {
+        this(null);
+    }
+
+    public Controller(Renderer renderer) {
+        this.renderer = renderer;
+    }
 
     public List<Route> routes() {
         List<Route> routes = new LinkedList<>();
@@ -32,18 +43,6 @@ public abstract class Controller {
             .of(permanent?Status.MOVED_PERMANENTLY:Status.FOUND, "")
             .withHeader("Location", location);
 
-    }
-
-    protected String render(String resource) {
-        return this.renderer.render(resource);
-    }
-
-    protected String render(String resource, Renderer.Parameter ... parameters) {
-        return this.renderer.render(resource, parameters);
-    }
-
-    protected String render(String resource, Map<String, Object> parameters) {
-        return this.renderer.render(resource, parameters);
     }
     */
 }
