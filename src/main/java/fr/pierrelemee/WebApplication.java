@@ -68,8 +68,9 @@ public class WebApplication implements HttpHandler {
         exchange.getResponseBody().close();
     }
 
-    public void onRequest (WebRequest request, Session session) {
+    public WebResponse onRequest (WebRequest request, Session session) {
         // Override if needed
+        return null;
     }
 
     public void onResponse (WebResponse response, Session session) {
@@ -82,8 +83,11 @@ public class WebApplication implements HttpHandler {
         System.out.println("Requested: " + request.getPath());
 
         Session session = this.sessionManager != null ? this.sessionManager.extract(request) : null;
-        this.onRequest(request, session);
-        WebResponse response = this.getResponse(request, session);
+        WebResponse response = this.onRequest(request, session);
+
+        if (response == null) {
+            response = this.getResponse(request, session);
+        }
 
         if (this.renderer != null && response.getTemplate() != null) {
             response.writeBody(this.renderer.render(response.getTemplate()));
