@@ -3,6 +3,10 @@ package fr.pierrelemee;
 
 import com.sun.net.httpserver.HttpExchange;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -29,14 +33,36 @@ public class WebRequest {
     }
 
     public WebRequest(String path, HttpMethod method, Map<String, List<String>> headers, Map<String, List<String>> get) {
+        this(path, method, headers, get, Collections.emptyMap());
+    }
+
+    public WebRequest(String path, HttpMethod method, Map<String, List<String>> headers, Map<String, List<String>> get, Map<String, List<String>> post) {
         this.path = path;
         this.method = method;
         this.get = get;
+        this.post = post;
         this.variables = new LinkedHashMap<>();
         this.cookies = new LinkedHashMap<>();
         this.headers = headers;
 
         this.exctractCookies();
+    }
+
+    public static Map<String, List<String>> parameters(InputStream input) {
+        BufferedReader reader = new BufferedReader(new InputStreamReader(input));
+        StringBuilder buffer = new StringBuilder();
+
+        try {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                buffer.append(line);
+            }
+
+            return parameters(buffer.toString());
+
+        } catch (IOException e) {
+            return Collections.emptyMap();
+        }
     }
 
     public static Map<String, List<String>> parameters(String query) {
@@ -116,10 +142,13 @@ public class WebRequest {
     }
 
     public static WebRequest fromExchange(HttpExchange exchange) {
+        HttpMethod method = HttpMethod.valueOf(exchange.getRequestMethod());
+
         return new WebRequest(exchange.getRequestURI().getPath(),
-                HttpMethod.valueOf(exchange.getRequestMethod()),
+                method,
                 exchange.getRequestHeaders(),
-                parameters(exchange.getRequestURI().getQuery())
+                parameters(exchange.getRequestURI().getQuery()),
+                method == HttpMethod.POST ? parameters(exchange.getRequestBody()) : Collections.emptyMap()
         );
     }
 }
