@@ -8,7 +8,7 @@ public class RenderTemplate {
     protected String path;
     protected Map<String, Object> parameters;
 
-    public RenderTemplate(String path) {
+    private RenderTemplate(String path) {
         this.path = path;
         this.parameters = new LinkedHashMap<>();
     }
@@ -25,5 +25,9 @@ public class RenderTemplate {
         this.parameters.put(name, value);
 
         return this;
+    }
+
+    public static RenderTemplate forPath(String path) {
+        return new RenderTemplate(path);
     }
 }

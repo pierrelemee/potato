@@ -68,19 +68,28 @@ public class WebApplication implements HttpHandler {
         exchange.getResponseBody().close();
     }
 
+    public void onRequest (WebRequest request, Session session) {
+        // Override if needed
+    }
+
+    public void onResponse (WebResponse response, Session session) {
+        if (session != null && !session.isSent()) {
+            response.addCookie(Cookie.Builder.create(this.sessionManager.getSessionCookieName()).setValue(session.getHash()).build());
+        }
+    }
+
     public WebResponse process(WebRequest request) {
         System.out.println("Requested: " + request.getPath());
 
         Session session = this.sessionManager != null ? this.sessionManager.extract(request) : null;
+        this.onRequest(request, session);
         WebResponse response = this.getResponse(request, session);
 
         if (this.renderer != null && response.getTemplate() != null) {
             response.writeBody(this.renderer.render(response.getTemplate()));
         }
 
-        if (session != null && !session.isSent()) {
-            response.addCookie(Cookie.Builder.create(this.sessionManager.getSessionCookieName()).setValue(session.getHash()).build());
-        }
+        this.onResponse(response, session);
 
         return response;
     }
