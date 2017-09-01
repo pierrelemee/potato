@@ -71,6 +71,6 @@ public class TestController extends Controller {
     public WebResponse template(SimpleSession session) {
         return WebResponse
                 .ok()
-                .setTemplate(new RenderTemplate("/test/template.txt"));
+                .setTemplate(RenderTemplate.forPath("/test/template.txt"));
     }
 }
