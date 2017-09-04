@@ -89,11 +89,10 @@ public class WebApplication implements HttpHandler {
             response = this.getResponse(request, session);
         }
 
+        this.onResponse(response, session);
         if (this.renderer != null && response.getTemplate() != null) {
             response.writeBody(this.renderer.render(response.getTemplate()));
         }
-
-        this.onResponse(response, session);
 
         return response;
     }
