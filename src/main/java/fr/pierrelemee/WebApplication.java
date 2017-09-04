@@ -80,8 +80,6 @@ public class WebApplication implements HttpHandler {
     }
 
     public WebResponse process(WebRequest request) {
-        System.out.println("Requested: " + request.getPath());
-
         Session session = this.sessionManager != null ? this.sessionManager.extract(request) : null;
         WebResponse response = this.onRequest(request, session);
 
