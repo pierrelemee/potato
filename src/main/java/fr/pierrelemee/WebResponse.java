@@ -45,6 +45,14 @@ public class WebResponse {
         return this.setBody(TemplateBody.fromPath(path));
     }
 
+    public WebResponse setTemplate(String path, Map<String, Object> parameters) {
+        return this.setBody(TemplateBody.fromPath(path, parameters));
+    }
+
+    public WebResponse setTemplate(TemplateBody template) {
+        return this.setBody(template);
+    }
+
     public Body getBody() {
         return this.body;
     }

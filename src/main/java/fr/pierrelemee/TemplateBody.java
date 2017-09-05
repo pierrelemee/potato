@@ -29,6 +29,12 @@ public class TemplateBody implements Body {
         return this;
     }
 
+    public TemplateBody addParameters(Map<String, Object> parameters) {
+        this.parameters.putAll(parameters);
+
+        return this;
+    }
+
     @Override
     public void write(OutputStream output, Renderer renderer) throws IOException {
         renderer.render(output, this);
@@ -36,5 +42,11 @@ public class TemplateBody implements Body {
 
     public static TemplateBody fromPath(String path) {
         return new TemplateBody(path);
+    }
+
+    public static TemplateBody fromPath(String path, Map<String, Object> parameters) {
+        TemplateBody template = new TemplateBody(path);
+
+        return template.addParameters(parameters);
     }
 }
