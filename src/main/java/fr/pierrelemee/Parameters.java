@@ -22,6 +22,10 @@ public class Parameters {
         this.values.putAll(values);
     }
 
+    public Map<String, List<String>> getValues() {
+        return values;
+    }
+
     public boolean has(String key) {
         return this.values.containsKey(key);
     }

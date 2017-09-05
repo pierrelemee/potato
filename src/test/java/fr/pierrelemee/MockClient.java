@@ -1,5 +1,6 @@
 package fr.pierrelemee;
 
+import java.io.*;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -9,10 +10,15 @@ public class MockClient {
 
     protected WebApplication app;
     protected Map<String, Cookie> cookies;
+    protected String body;
 
     public MockClient(WebApplication app) {
         this.app = app;
         this.cookies = new LinkedHashMap<>();
+    }
+
+    public String getBody() {
+        return body;
     }
 
     public WebResponse get(String path) {
@@ -50,7 +56,17 @@ public class MockClient {
             );
         }
 
+        this.body = "";
         WebResponse response = this.app.process(request);
+        ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+        try {
+            if (response.getBody() != null) {
+                response.getBody().write(buffer, this.app.getRenderer());
+            }
+            buffer.flush();
+            buffer.close();
+            this.body = buffer.toString();
+        } catch (IOException ioe) {}
 
         this.cookies.putAll(response.getCookies());
         return response;
