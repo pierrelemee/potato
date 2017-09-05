@@ -31,7 +31,7 @@ public class TestController extends Controller {
 
     @Route(name = "test_query", path = "/test/query")
     public WebResponse query(WebRequest request) {
-        String name = request.get().containsKey("name") ? request.get().get("name").get(0) : "";
+        String name = request.get().get("name");
         return new WebResponse("test - query: " + name);
     }
 

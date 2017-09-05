@@ -6,6 +6,10 @@ import fr.pierrelemee.route.RouterException;
 import fr.pierrelemee.sessions.InMemorySessionManager;
 import org.junit.Test;
 
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.Map;
+
 import static org.junit.Assert.*;
 
 public class ControllerTest {
@@ -69,6 +73,22 @@ public class ControllerTest {
 
         assertEquals(200, response.getStatus());
         assertEquals("Sum is 7", response.getBody());
+    }
+
+    @Test
+    public void testPostParameters() throws RouterException {
+        WebApplication app = new WebApplication();
+        app.addController(new CalculatorController());
+
+        MockClient client = new MockClient(app);
+        Map<String, String> parameters = new LinkedHashMap<>();
+        parameters.put("a", Integer.toString(3));
+        parameters.put("b", Integer.toString(6));
+
+        WebResponse response = client.post("/calculator/sum", parameters);
+
+        assertEquals(200, response.getStatus());
+        assertEquals("Sum is 9", response.getBody());
     }
 
     @Test

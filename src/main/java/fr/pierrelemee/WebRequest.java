@@ -21,66 +21,45 @@ public class WebRequest {
     protected Map<String, String> variables;
     protected Map<String, String> cookies;
     protected Map<String, List<String>> headers;
-    protected Map<String, List<String>> get;
-    protected Map<String, List<String>> post;
+    protected Parameters parameters;
+    protected Parameters get;
+    protected Parameters post;
 
     public WebRequest(String path) {
         this(path, HttpMethod.GET);
     }
 
     public WebRequest(String path, HttpMethod method) {
-        this(path, method, new LinkedHashMap<>(), new LinkedHashMap<>());
+        this(path, method, Parameters.empty(), new LinkedHashMap<>());
     }
 
-    public WebRequest(String path, HttpMethod method, Map<String, List<String>> headers, Map<String, List<String>> get) {
-        this(path, method, headers, get, Collections.emptyMap());
+    public WebRequest(String path, HttpMethod method, Map<String, List<String>> parameters) {
+        this(path, method, new Parameters(parameters));
     }
 
-    public WebRequest(String path, HttpMethod method, Map<String, List<String>> headers, Map<String, List<String>> get, Map<String, List<String>> post) {
+    public WebRequest(String path, HttpMethod method, Parameters parameters) {
+        this(path, method, parameters, new LinkedHashMap<>());
+    }
+
+    public WebRequest(String path, HttpMethod method, Parameters parameters, Map<String, List<String>> headers) {
+        this(path, method, method != HttpMethod.POST ? parameters : Parameters.empty(), method == HttpMethod.POST ? parameters : Parameters.empty(), headers);
+    }
+
+    public WebRequest(String path, HttpMethod method, Map<String, List<String>> parameters, Map<String, List<String>> headers) {
+        this(path, method, method != HttpMethod.POST ? new Parameters(parameters) : Parameters.empty(), method == HttpMethod.POST ? new Parameters(parameters) : Parameters.empty(), headers);
+    }
+
+    public WebRequest(String path, HttpMethod method, Parameters get, Parameters post, Map<String, List<String>> headers) {
         this.path = path;
         this.method = method;
         this.get = get;
         this.post = post;
+        this.parameters = this.method == HttpMethod.POST ? this.post : this.get;
         this.variables = new LinkedHashMap<>();
         this.cookies = new LinkedHashMap<>();
         this.headers = headers;
 
         this.exctractCookies();
-    }
-
-    public static Map<String, List<String>> parameters(InputStream input) {
-        BufferedReader reader = new BufferedReader(new InputStreamReader(input));
-        StringBuilder buffer = new StringBuilder();
-
-        try {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                buffer.append(line);
-            }
-
-            return parameters(buffer.toString());
-
-        } catch (IOException e) {
-            return Collections.emptyMap();
-        }
-    }
-
-    public static Map<String, List<String>> parameters(String query) {
-        Map<String, List<String>> parameters = new LinkedHashMap<>();
-
-        if (query != null && !query.isEmpty()) {
-            int index;
-            for (String parameter : query.split("&")) {
-                index = parameter.indexOf('=');
-                if (index > -1) {
-                    parameters.put(parameter.substring(0, index), Collections.singletonList(parameter.substring(index + 1)));
-                } else {
-                    parameters.put(parameter, Collections.singletonList("true"));
-                }
-            }
-        }
-
-        return parameters;
     }
 
     protected void addVariables(Map<String, String> variables) {
@@ -133,11 +112,15 @@ public class WebRequest {
         return this.path;
     }
 
-    public Map<String, List<String>> get() {
+    public Parameters parameters() {
         return this.get;
     }
 
-    public Map<String, List<String>> post() {
+    public Parameters get() {
+        return this.get;
+    }
+
+    public Parameters post() {
         return this.post;
     }
 
@@ -146,9 +129,9 @@ public class WebRequest {
 
         return new WebRequest(exchange.getRequestURI().getPath(),
                 method,
-                exchange.getRequestHeaders(),
-                parameters(exchange.getRequestURI().getQuery()),
-                method == HttpMethod.POST ? parameters(exchange.getRequestBody()) : Collections.emptyMap()
+                Parameters.fromString(exchange.getRequestURI().getQuery()),
+                method == HttpMethod.POST ? Parameters.fromInputStream(exchange.getRequestBody()) : Parameters.empty(),
+                exchange.getRequestHeaders()
         );
     }
 }

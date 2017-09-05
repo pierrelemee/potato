@@ -1,5 +1,6 @@
 package fr.pierrelemee;
 
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -19,11 +20,19 @@ public class MockClient {
     }
 
     public WebResponse post(String path) {
-        return this.request(path, HttpMethod.POST);
+        return this.post(path, Collections.emptyMap());
+    }
+
+    public WebResponse post(String path, Map<String, String> parameters) {
+        return this.request(path, HttpMethod.POST, parameters);
     }
 
     protected WebResponse request(String path, HttpMethod method) {
-        WebRequest request = new WebRequest(path, method);
+        return this.request(path, method, Collections.emptyMap());
+    }
+
+    protected WebResponse request(String path, HttpMethod method, Map<String, String> parameters) {
+        WebRequest request = new WebRequest(path, method, new Parameters(parameters.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, e -> Collections.singletonList(e.getValue())))));
 
         for (String key: this.cookies.keySet()) {
             if (this.cookies.get(key).hasExpired()) {
