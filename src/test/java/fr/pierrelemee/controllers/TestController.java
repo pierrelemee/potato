@@ -13,7 +13,7 @@ public class TestController extends Controller {
     public WebResponse index() {
         return WebResponse
                 .ok()
-                .writeBody("test - index")
+                .setBody("test - index")
                 .addHeader("Foo", "bar");
     }
 
@@ -45,11 +45,11 @@ public class TestController extends Controller {
         if (request.hasCookie("foo")) {
             return WebResponse
                 .ok()
-                    .writeBody("foo = " + request.cookie("foo"));
+                    .setBody("foo = " + request.cookie("foo"));
         } else {
             return WebResponse
                 .ok()
-                .writeBody("no foo")
+                .setBody("no foo")
                 .addCookie(Cookie.Builder
                     .create("foo")
                     .setValue("bar" + (new Random().nextInt(10)))
@@ -64,13 +64,13 @@ public class TestController extends Controller {
     public WebResponse session(SimpleSession session) {
         return WebResponse
             .ok()
-            .writeBody("counter: " + session.increment());
+            .setBody("counter: " + session.increment());
     }
 
     @Route(name = "test_template", path = "/test/template")
     public WebResponse template(SimpleSession session) {
         return WebResponse
                 .ok()
-                .setTemplate(RenderTemplate.forPath("/test/template.txt"));
+                .setTemplate("/test/template.txt");
     }
 }

@@ -1,12 +1,11 @@
 package fr.pierrelemee;
 
 import fr.pierrelemee.controllers.*;
-import fr.pierrelemee.renderers.RawRenderer;
+import fr.pierrelemee.run.renderers.RawRenderer;
 import fr.pierrelemee.route.RouterException;
 import fr.pierrelemee.sessions.InMemorySessionManager;
 import org.junit.Test;
 
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -24,7 +23,7 @@ public class ControllerTest {
         WebResponse response = client.get("/test");
 
         assertEquals(200, response.getStatus());
-        assertEquals("test - index", response.getBody());
+        assertEquals("test - index", client.getBody());
         assertTrue(response.getHeaders().containsKey("Foo"));
         assertTrue(response.getHeaders().get("Foo").contains("bar"));
     }
@@ -59,7 +58,7 @@ public class ControllerTest {
         WebResponse response = client.get("/test/hello/Chuck");
 
         assertEquals(200, response.getStatus());
-        assertEquals("test - hello Chuck !", response.getBody());
+        assertEquals("test - hello Chuck !", client.getBody());
     }
 
     @Test
@@ -72,7 +71,7 @@ public class ControllerTest {
         WebResponse response = client.get("/calculator/5/2/sum");
 
         assertEquals(200, response.getStatus());
-        assertEquals("Sum is 7", response.getBody());
+        assertEquals("Sum is 7", client.getBody());
     }
 
     @Test
@@ -88,7 +87,7 @@ public class ControllerTest {
         WebResponse response = client.post("/calculator/sum", parameters);
 
         assertEquals(200, response.getStatus());
-        assertEquals("Sum is 9", response.getBody());
+        assertEquals("Sum is 9", client.getBody());
     }
 
     @Test
@@ -101,13 +100,13 @@ public class ControllerTest {
         WebResponse response = client.get("/test/cookie");
 
         assertEquals(200, response.getStatus());
-        assertEquals("no foo", response.getBody());
+        assertEquals("no foo", client.getBody());
 
         response = client.get("/test/cookie");
 
         assertEquals(200, response.getStatus());
-        System.out.println(response.getBody());
-        assertTrue("Unexpected response body on 2nd call", response.getBody().matches("foo = bar[0-9]{1}"));
+        System.out.println(client.getBody());
+        assertTrue("Unexpected response body on 2nd call", client.getBody().matches("foo = bar[0-9]{1}"));
     }
 
     @Test
@@ -121,12 +120,12 @@ public class ControllerTest {
         WebResponse response = client.get("/test/session");
 
         assertEquals(200, response.getStatus());
-        assertEquals("counter: 1", response.getBody());
+        assertEquals("counter: 1", client.getBody());
 
         response = client.get("/test/session");
 
         assertEquals(200, response.getStatus());
-        assertEquals("counter: 2", response.getBody());
+        assertEquals("counter: 2", client.getBody());
     }
 
     @Test
@@ -150,7 +149,7 @@ public class ControllerTest {
         WebResponse response = client.get("/test/template");
 
         assertEquals(200, response.getStatus());
-        assertEquals("This is a template", response.getBody());
+        assertEquals("This is a template", client.getBody());
     }
 
     @Test(expected = RouterException.class)

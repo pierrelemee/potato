@@ -1,9 +1,10 @@
-package fr.pierrelemee.renderers;
+package fr.pierrelemee.run.renderers;
 
-import fr.pierrelemee.RenderTemplate;
+import fr.pierrelemee.TemplateBody;
 import fr.pierrelemee.Renderer;
 
 import java.io.IOException;
+import java.io.OutputStream;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Files;
@@ -12,12 +13,12 @@ import java.nio.file.Paths;
 public class RawRenderer implements Renderer {
 
     @Override
-    public String render(RenderTemplate template) {
+    public void render(OutputStream output, TemplateBody template) {
         try {
             URL resource = this.getClass().getResource(template.getPath());
-            return resource != null ? new String(Files.readAllBytes(Paths.get(resource.toURI()))) : null;
+            output.write(Files.readAllBytes(Paths.get(resource.toURI())));
         } catch (URISyntaxException|IOException e) {
-            return null;
+            // TODO add some log
         }
     }
 }

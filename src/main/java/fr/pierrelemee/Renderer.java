@@ -1,6 +1,8 @@
 package fr.pierrelemee;
 
+import java.io.OutputStream;
+
 public interface Renderer {
 
-    String render(RenderTemplate template);
+    void render(OutputStream output, TemplateBody template);
 }

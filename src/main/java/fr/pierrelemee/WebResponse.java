@@ -8,8 +8,7 @@ import java.util.Map;
 public class WebResponse {
 
     protected final int status;
-    protected StringBuffer body;
-    protected RenderTemplate template;
+    protected Body body;
     protected Map<String, Cookie> cookies;
     protected Map<String, List<String>> headers;
 
@@ -27,30 +26,27 @@ public class WebResponse {
 
     public WebResponse(int status, String body) {
         this.status = status;
-        this.body = new StringBuffer();
-        this.body.append(body);
         this.cookies = new LinkedHashMap<>();
         this.headers = new LinkedHashMap<>();
+        this.setBody(body);
     }
 
-    public RenderTemplate getTemplate() {
-        return template;
-    }
-
-    public WebResponse setTemplate(RenderTemplate template) {
-        this.template = template;
+    protected WebResponse setBody(Body body) {
+        this.body = body;
 
         return this;
     }
 
-    public WebResponse writeBody(String body) {
-        this.body.append(body);
-
-        return this;
+    public WebResponse setBody(String content) {
+        return this.setBody(RawBody.fromContent(content));
     }
 
-    public String getBody() {
-        return this.body.toString();
+    public WebResponse setTemplate(String path) {
+        return this.setBody(TemplateBody.fromPath(path));
+    }
+
+    public Body getBody() {
+        return this.body;
     }
 
     public WebResponse addHeader(String name, String value) {

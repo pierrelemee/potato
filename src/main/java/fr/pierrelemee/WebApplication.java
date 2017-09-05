@@ -58,12 +58,22 @@ public class WebApplication implements HttpHandler {
         }
     }
 
+    public Renderer getRenderer() {
+        return renderer;
+    }
+
+    public Router getRouter() {
+        return router;
+    }
+
     public void handle(HttpExchange exchange) throws IOException {
         WebResponse response = this.process(WebRequest.fromExchange(exchange));
 
         exchange.getResponseHeaders().putAll(response.getHeaders());
-        exchange.sendResponseHeaders(response.getStatus(), response.getBody().getBytes().length);
-        exchange.getResponseBody().write(response.getBody().getBytes());
+        exchange.sendResponseHeaders(response.getStatus(), 0);
+        if (null != response.getBody()) {
+            response.getBody().write(exchange.getResponseBody(), this.renderer);
+        }
         exchange.getResponseBody().flush();
         exchange.getResponseBody().close();
     }
@@ -88,10 +98,6 @@ public class WebApplication implements HttpHandler {
         }
 
         this.onResponse(response, session);
-        if (this.renderer != null && response.getTemplate() != null) {
-            response.writeBody(this.renderer.render(response.getTemplate()));
-        }
-
         return response;
     }
 
@@ -107,13 +113,13 @@ public class WebApplication implements HttpHandler {
                 e.printStackTrace();
                 return WebResponse
                     .status(500)
-                    .writeBody("Internal server error");
+                    .setBody("Internal server error");
             }
         }
 
         return WebResponse
             .status(404)
-            .writeBody("Not found");
+            .setBody("Not found");
     }
 
     public void start() throws Exception {
