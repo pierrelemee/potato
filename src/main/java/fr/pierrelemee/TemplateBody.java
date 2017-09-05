@@ -23,12 +23,14 @@ public class TemplateBody implements Body {
         return parameters;
     }
 
+    @Override
     public TemplateBody addParameter(String name, Object value) {
         this.parameters.put(name, value);
 
         return this;
     }
 
+    @Override
     public TemplateBody addParameters(Map<String, Object> parameters) {
         this.parameters.putAll(parameters);
 
