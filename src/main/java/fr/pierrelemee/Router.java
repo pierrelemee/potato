@@ -4,8 +4,7 @@ import fr.pierrelemee.route.RouteMatching;
 import fr.pierrelemee.route.RouteTree;
 import fr.pierrelemee.route.RouterException;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.*;
 
 public class Router {
 
@@ -39,26 +38,29 @@ public class Router {
         return null;
     }
 
+    public String url(String name) {
+        return this.url(name, Collections.emptyMap());
+    }
+
     public String url(String name, Map<String, Object> parameters) {
         Route target = this.findRouteByName(name);
 
+
         if (null != target) {
-            StringBuilder buffer = new StringBuilder();
+            List<String> url = new LinkedList<>();
             for (String element: RouteTree.buildPathElements(target.getPath())) {
                 if (element.matches("<.*>")) {
                     if (parameters.containsKey(element.substring(1, element.length() - 1))) {
-                        buffer.append(Route.SEPARATOR);
-                        buffer.append(parameters.get(element.substring(1, element.length() - 1)));
+                        url.add(parameters.get(element.substring(1, element.length() - 1)).toString());
                     } else {
-                        buffer.append(Route.SEPARATOR);
+                        url.add("");
                     }
                 } else {
-                    buffer.append(Route.SEPARATOR);
-                    buffer.append(element);
+                    url.add(element);
                 }
             }
 
-            return buffer.toString();
+            return Route.SEPARATOR + String.join(Route.SEPARATOR, url);
         }
 
         return "";

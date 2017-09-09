@@ -29,6 +29,7 @@ public class RouterTest {
     public void testRouterGetUrl() throws Exception {
         Router router = new Router();
         WebApplication app = new WebApplication(router);
+        app.addController(new TestController());
         app.addController(new CalculatorController());
 
         Map<String, Object> parameters = new LinkedHashMap<>();
@@ -38,5 +39,10 @@ public class RouterTest {
 
         assertNotNull(url);
         assertEquals("/calculator/2/3/sum", url);
+
+        url = router.url("test_index");
+
+        assertNotNull(url);
+        assertEquals("/", url);
     }
 }

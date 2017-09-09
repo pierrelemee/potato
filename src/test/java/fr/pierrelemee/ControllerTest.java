@@ -20,7 +20,7 @@ public class ControllerTest {
 
         MockClient client = new MockClient(app);
 
-        WebResponse response = client.get("/test");
+        WebResponse response = client.get("/");
 
         assertEquals(200, response.getStatus());
         assertEquals("test - index", client.getBody());
@@ -168,18 +168,5 @@ public class ControllerTest {
     public void testDuplicateRouteNameInconsistentController() throws Exception {
         WebApplication app = new WebApplication();
         app.addController(new DuplicateRouteNameInconsistentController());
-    }
-
-    @Test
-    public void testGetRouteByName() throws Exception {
-        Router router = new Router();
-
-        WebApplication app = new WebApplication(router);
-        app.addController(new TestController());
-
-        Route route = router.findRouteByName("test_index");
-        assertNotNull(route);
-        assertEquals("/test", route.getPath());
-        assertEquals(HttpMethod.GET, route.getMethod());
     }
 }
