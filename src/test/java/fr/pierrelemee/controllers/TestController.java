@@ -9,7 +9,7 @@ import java.util.Random;
 
 public class TestController extends Controller {
 
-    @Route(name = "test_index", path = "/test")
+    @Route(name = "test_index")
     public WebResponse index() {
         return WebResponse
                 .ok()
