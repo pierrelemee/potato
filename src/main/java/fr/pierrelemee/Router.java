@@ -39,6 +39,31 @@ public class Router {
         return null;
     }
 
+    public String url(String name, Map<String, Object> parameters) {
+        Route target = this.findRouteByName(name);
+
+        if (null != target) {
+            StringBuilder buffer = new StringBuilder();
+            for (String element: RouteTree.buildPathElements(target.getPath())) {
+                if (element.matches("<.*>")) {
+                    if (parameters.containsKey(element.substring(1, element.length() - 1))) {
+                        buffer.append(Route.SEPARATOR);
+                        buffer.append(parameters.get(element.substring(1, element.length() - 1)));
+                    } else {
+                        buffer.append(Route.SEPARATOR);
+                    }
+                } else {
+                    buffer.append(Route.SEPARATOR);
+                    buffer.append(element);
+                }
+            }
+
+            return buffer.toString();
+        }
+
+        return "";
+    }
+
     public RouteMatching match(WebRequest request) {
         if (this.routes.containsKey(request.getMethod())) {
             return this.routes.get(request.getMethod()).getMatchingRoute(request);

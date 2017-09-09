@@ -88,7 +88,7 @@ public class RouteTree {
         return RouteMatching.none();
     }
 
-    static List<String> buildPathElements(String path) {
+    public static List<String> buildPathElements(String path) {
         return Arrays.stream(path.split(Route.SEPARATOR)).filter(s -> !s.isEmpty()).collect(Collectors.toList());
     }
 }
