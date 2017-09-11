@@ -84,8 +84,12 @@ public class WebApplication implements HttpHandler {
     }
 
     public void onResponse (WebResponse response, Session session) {
-        if (session != null && !session.isSent()) {
-            response.addCookie(Cookie.Builder.create(this.sessionManager.getSessionCookieName()).setValue(session.getHash()).build());
+        if (session != null) {
+            this.sessionManager.flush(session);
+
+            if (!session.isSent()) {
+                response.addCookie(Cookie.Builder.create(this.sessionManager.getSessionCookieName()).setValue(session.getHash()).build());
+            }
         }
     }
 

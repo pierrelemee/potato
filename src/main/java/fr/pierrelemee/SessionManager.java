@@ -35,5 +35,7 @@ public abstract class SessionManager<T extends Session> {
         return session;
     }
 
-    public void destroySession(T session) {}
+    public abstract void destroySession(T session);
+
+    public abstract void flush(Session session);
 }
