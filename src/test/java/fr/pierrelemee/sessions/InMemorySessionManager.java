@@ -1,5 +1,6 @@
 package fr.pierrelemee.sessions;
 
+import fr.pierrelemee.Session;
 import fr.pierrelemee.SessionManager;
 
 import java.util.LinkedHashMap;
@@ -34,5 +35,15 @@ public class InMemorySessionManager extends SessionManager<SimpleSession> {
     @Override
     protected void addSession(SimpleSession session) {
         this.sessions.put(session.getHash(), session);
+    }
+
+    @Override
+    public void destroySession(SimpleSession session) {
+        this.sessions.remove(session);
+    }
+
+    @Override
+    public void flush(Session session) {
+        // Nothing to do here
     }
 }
