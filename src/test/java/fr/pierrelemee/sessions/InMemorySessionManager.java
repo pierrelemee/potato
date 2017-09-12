@@ -30,7 +30,7 @@ public class InMemorySessionManager extends SessionManager<SimpleSession> {
     }
 
     @Override
-    public void destroySession(SimpleSession session) {
+    public void destroySession(String hash, SimpleSession session) {
         this.sessions.remove(session);
     }
 }

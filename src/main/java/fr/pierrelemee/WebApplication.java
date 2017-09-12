@@ -109,7 +109,7 @@ public class WebApplication implements HttpHandler {
         this.onResponse(response, session);
 
         if (this.sessionManager != null) {
-            if (hash != null) {
+            if (hash == null) {
                 hash = this.sessionManager.generateHash();
                 response.addCookie(Cookie.Builder.create(this.sessionManager.getCookieName()).setValue(hash).build());
             }

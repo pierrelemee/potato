@@ -26,7 +26,7 @@ public abstract class SessionManager<T extends Session> {
 
     public abstract void flush(String hash, T session);
 
-    public abstract void destroySession(T session);
+    public abstract void destroySession(String hash, T session);
 
     public String generateHash() {
         String hash = Long.toHexString(RANDOM.nextLong());
