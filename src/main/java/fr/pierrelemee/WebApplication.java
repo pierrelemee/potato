@@ -84,17 +84,22 @@ public class WebApplication implements HttpHandler {
     }
 
     public void onResponse (WebResponse response, Session session) {
-        if (session != null) {
-            this.sessionManager.flush(session);
-
-            if (!session.isSent()) {
-                response.addCookie(Cookie.Builder.create(this.sessionManager.getSessionCookieName()).setValue(session.getHash()).build());
-            }
-        }
+        // Override if needed
     }
 
     public WebResponse process(WebRequest request) {
-        Session session = this.sessionManager != null ? this.sessionManager.extract(request) : null;
+        Session session = null;
+        String hash = null;
+
+        if (this.sessionManager != null) {
+            if (this.sessionManager.hasSession(request.cookie(this.sessionManager.getCookieName()))) {
+                session = this.sessionManager.getSession(request.cookie(this.sessionManager.getCookieName()));
+                hash = request.cookie(this.sessionManager.getCookieName());
+            } else {
+                session = this.sessionManager.createSession();
+            }
+        }
+
         WebResponse response = this.onRequest(request, session);
 
         if (response == null) {
@@ -102,6 +107,16 @@ public class WebApplication implements HttpHandler {
         }
 
         this.onResponse(response, session);
+
+        if (this.sessionManager != null) {
+            if (hash != null) {
+                hash = this.sessionManager.generateHash();
+                response.addCookie(Cookie.Builder.create(this.sessionManager.getCookieName()).setValue(hash).build());
+            }
+
+            this.sessionManager.flush(hash, session);
+        }
+
         return response;
     }
 
