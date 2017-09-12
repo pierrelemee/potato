@@ -1,39 +1,39 @@
 package fr.pierrelemee;
 
+import java.util.Random;
 
 public abstract class SessionManager<T extends Session> {
 
+    private static final String COOKIE_NAME = "pttossnid";
+    private static final Random RANDOM = new Random();
     protected SessionFactory<T> factory;
 
     public SessionManager(SessionFactory<T> factory) {
         this.factory = factory;
     }
 
-    public T extract(WebRequest request) {
-        if (request.hasCookie(this.getSessionCookieName()) && this.hasSession(request.cookie(this.getSessionCookieName()))) {
-            return this.getSession(request.cookie(this.getSessionCookieName()));
-        }
-
-        return this.createSession();
+    public final String getCookieName() {
+        return COOKIE_NAME;
     }
-    public abstract String getSessionCookieName();
 
     public abstract boolean hasSession(String hash);
 
     public abstract T getSession(String hash);
 
-    protected abstract void addSession(T session);
-
     protected T createSession() {
-        T session = this.factory.createSession();
-        while (this.hasSession(session.getHash())) {
-            session = this.factory.createSession();
-        }
-
-        this.addSession(session);
-
-        return session;
+        return this.factory.createSession();
     }
 
-    public void destroySession(T session) {}
+    public abstract void flush(String hash, T session);
+
+    public abstract void destroySession(String hash, T session);
+
+    public String generateHash() {
+        String hash = Long.toHexString(RANDOM.nextLong());
+        while (this.hasSession(hash)) {
+            hash = Long.toHexString(RANDOM.nextLong());
+        }
+
+        return hash;
+    }
 }

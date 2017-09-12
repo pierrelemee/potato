@@ -7,18 +7,11 @@ import java.util.Map;
 
 public class InMemorySessionManager extends SessionManager<SimpleSession> {
 
-    public static final String COOKIE_NAME = "ptossnid";
-
     protected Map<String, SimpleSession> sessions;
 
     public InMemorySessionManager() {
         super(SimpleSession::new);
         this.sessions = new LinkedHashMap<>();
-    }
-
-    @Override
-    public String getSessionCookieName() {
-        return COOKIE_NAME;
     }
 
     @Override
@@ -32,7 +25,12 @@ public class InMemorySessionManager extends SessionManager<SimpleSession> {
     }
 
     @Override
-    protected void addSession(SimpleSession session) {
-        this.sessions.put(session.getHash(), session);
+    public void flush(String hash, SimpleSession session) {
+        this.sessions.put(hash, session);
+    }
+
+    @Override
+    public void destroySession(String hash, SimpleSession session) {
+        this.sessions.remove(session);
     }
 }
