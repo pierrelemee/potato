@@ -27,6 +27,10 @@ public class Router {
             this.routes.put(route.getMethod(), new RouteTree());
         }
 
+        if (this.routes.get(route.getMethod()).hasRoute(route)) {
+            throw new RouterException("Conflicting route path for " + route.getName() + " (" + route.getPath() + ")");
+        }
+
         this.routes.get(route.getMethod()).addRoute(route);
     }
 

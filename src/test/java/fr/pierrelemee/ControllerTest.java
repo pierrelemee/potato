@@ -105,7 +105,6 @@ public class ControllerTest {
         response = client.get("/test/cookie");
 
         assertEquals(200, response.getStatus());
-        System.out.println(client.getBody());
         assertTrue("Unexpected response body on 2nd call", client.getBody().matches("foo = bar[0-9]{1}"));
     }
 
@@ -150,23 +149,5 @@ public class ControllerTest {
 
         assertEquals(200, response.getStatus());
         assertEquals("This is a template", client.getBody());
-    }
-
-    @Test(expected = RouterException.class)
-    public void testConflictingVariableInconsistentController() throws Exception {
-        WebApplication app = new WebApplication();
-        app.addController(new ConflictingVariableInconsistentController());
-    }
-
-    @Test(expected = RouterException.class)
-    public void testDuplicateVariableNameInconsistentController() throws Exception {
-        WebApplication app = new WebApplication();
-        app.addController(new DuplicateVariableNameInconsistentController());
-    }
-
-    @Test(expected = RouterException.class)
-    public void testDuplicateRouteNameInconsistentController() throws Exception {
-        WebApplication app = new WebApplication();
-        app.addController(new DuplicateRouteNameInconsistentController());
     }
 }

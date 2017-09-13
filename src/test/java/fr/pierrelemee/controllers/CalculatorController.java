@@ -16,6 +16,14 @@ public class CalculatorController extends Controller {
         return new WebResponse("Sum is " + (a + b));
     }
 
+    @Route(name = "calculator_multi_path", path = "/calculator/<a>/<b>/multi")
+    public WebResponse multi_path(WebRequest request) {
+        Integer a = Integer.parseInt(request.variable("a"));
+        Integer b = Integer.parseInt(request.variable("b"));
+
+        return new WebResponse("Product is " + (a * b));
+    }
+
     @Route(name = "calculator_sum_post", path = "/calculator/sum", method = HttpMethod.POST)
     public WebResponse sum_post(WebRequest request) {
         return new WebResponse(

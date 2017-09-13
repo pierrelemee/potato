@@ -3,10 +3,7 @@ package fr.pierrelemee.route;
 import fr.pierrelemee.Route;
 import fr.pierrelemee.WebRequest;
 
-import java.util.Arrays;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class RouteTree {
@@ -15,8 +12,6 @@ public class RouteTree {
 
     protected RouteTree parent;
     protected Route route;
-    protected String variable;
-    protected RouteTree child;
     protected Map<String, RouteTree> children;
 
     public RouteTree() {
@@ -28,7 +23,37 @@ public class RouteTree {
         this.children = new LinkedHashMap<>();
     }
 
+    public final boolean hasRoute(Route route) {
+        return this.hasRoute(buildPathElements(route.getPath()));
+    }
+
+    public final boolean hasRoute(List<String> elements) {
+        if (elements.isEmpty()) {
+            return this.route != null;
+        }
+
+        if (elements.get(0).matches(VARIABLE_PATTERN)) {
+            for (String key: this.children.keySet()) {
+                if (key.matches(VARIABLE_PATTERN) && children.get(key).hasRoute(elements.subList(1, elements.size()))) {
+                    return true;
+                }
+            }
+        } else {
+            return this.children.containsKey(elements.get(0)) && this.children.get(elements.get(0)).hasRoute(elements.subList(1, elements.size()));
+        }
+
+        return false;
+    }
+
     public final void addRoute(Route route) throws RouterException {
+        List<String> elements = buildPathElements(route.getPath());
+
+        List<String> duplicates = elements.stream().filter(e -> e.matches(VARIABLE_PATTERN)).filter(i -> Collections.frequency(elements, i) >1).collect(Collectors.toList());
+
+        if (!duplicates.isEmpty()) {
+            throw new RouterException(String.format("Duplicate variable(s) [%s] in path %s", Arrays.toString(duplicates.toArray()), route.getPath()));
+        }
+
         this.addRoute(route, buildPathElements(route.getPath()));
     }
 
@@ -36,12 +61,8 @@ public class RouteTree {
         if (elements.isEmpty()) {
             this.route = route;
         } else {
+            /*
             if (elements.get(0).matches(VARIABLE_PATTERN)) {
-                String variable = elements.get(0).substring(1, elements.get(0).length() - 1);
-                if (this.variable != null) {
-                    throw new RouterException("Conflicting variable " + variable + " with " + this.variable);
-                }
-
                 if (this.findVariable(variable)) {
                     throw new RouterException("Duplicate variable " + variable + " in tree");
                 }
@@ -56,15 +77,14 @@ public class RouteTree {
 
                 this.children.get(elements.get(0)).addRoute(route, elements.subList(1, elements.size()));
             }
-        }
-    }
+             */
 
-    protected boolean findVariable(String name) {
-        if (this.parent != null) {
-            return this.parent.variable != null && this.parent.variable.equalsIgnoreCase(name);
-        }
+            if (!this.children.containsKey(elements.get(0))) {
+                this.children.put(elements.get(0), new RouteTree(this));
+            }
 
-        return false;
+            this.children.get(elements.get(0)).addRoute(route, elements.subList(1, elements.size()));
+        }
     }
 
     public final RouteMatching getMatchingRoute(WebRequest request) {
@@ -80,9 +100,12 @@ public class RouteTree {
             return this.children.get(elements.get(0)).getMatchingRoute(elements.subList(1, elements.size()), variables);
         }
 
-        if (this.variable != null) {
-            variables.put(this.variable, elements.get(0));
-            return this.child != null ? this.child.getMatchingRoute(elements.subList(1, elements.size()), variables) : null;
+        RouteMatching matching;
+        for (String key: this.children.keySet()) {
+            if (key.matches(VARIABLE_PATTERN) && null != (matching = this.children.get(key).getMatchingRoute(elements.subList(1, elements.size()), variables))) {
+                variables.put(key.substring(1, key.length() -1), elements.get(0));
+                return matching;
+            }
         }
 
         return RouteMatching.none();

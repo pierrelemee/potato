@@ -45,4 +45,22 @@ public class RouterTest {
         assertNotNull(url);
         assertEquals("/", url);
     }
+
+    @Test(expected = RouterException.class)
+    public void testConflictingVariableInconsistentController() throws Exception {
+        WebApplication app = new WebApplication();
+        app.addController(new ConflictingVariableInconsistentController());
+    }
+
+    @Test(expected = RouterException.class)
+    public void testDuplicateVariableNameInconsistentController() throws Exception {
+        WebApplication app = new WebApplication();
+        app.addController(new DuplicateVariableNameInconsistentController());
+    }
+
+    @Test(expected = RouterException.class)
+    public void testDuplicateRouteNameInconsistentController() throws Exception {
+        WebApplication app = new WebApplication();
+        app.addController(new DuplicateRouteNameInconsistentController());
+    }
 }
