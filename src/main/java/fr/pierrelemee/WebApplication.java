@@ -8,6 +8,8 @@ import fr.pierrelemee.route.RouterException;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 public class WebApplication implements HttpHandler {
 
@@ -16,6 +18,7 @@ public class WebApplication implements HttpHandler {
     protected Router router;
     protected Renderer renderer;
     protected SessionManager sessionManager;
+    protected Executor executor;
 
     public WebApplication() {
         this(new Router());
@@ -49,6 +52,7 @@ public class WebApplication implements HttpHandler {
         this.router = router;
         this.renderer = renderer;
         this.sessionManager = sessionManager;
+        this.executor = Executors.newCachedThreadPool();
     }
 
     public void addController(Controller controller) throws RouterException {
@@ -56,6 +60,10 @@ public class WebApplication implements HttpHandler {
         for (Route route : controller.routes()) {
             this.router.addRoute(route);
         }
+    }
+
+    public void setExecutor(Executor executor) {
+        this.executor = executor;
     }
 
     public Renderer getRenderer() {
@@ -148,7 +156,7 @@ public class WebApplication implements HttpHandler {
     public void start(int port) throws Exception {
         HttpServer server = HttpServer.create(new InetSocketAddress(port), 0);
         server.createContext("/", this);
-        server.setExecutor(null);
+        server.setExecutor(this.executor);
         server.start();
     }
 }
